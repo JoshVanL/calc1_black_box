@@ -1,0 +1,146 @@
+m255
+K3
+13
+cModel Technology
+Z0 d/usr/local/modelsim/modeltech
+T_opt
+Z1 VoDlHHZ_RnoY;5bW=3XDmO1
+Z2 04 15 4 work alu_input_stage fast 0
+Z3 =1-00238b172f90-54510b58-1cf0f-1840
+Z4 o-quiet -auto_acc_if_foreign -work calc1_black_box
+Z5 n@_opt
+Z6 OL;O;6.5c;42
+valu_input_stage
+Z7 IWFHEfe03:WVoRXN>2K;zk2
+Z8 V6kO50JZYjU7llzW_OlR?63
+Z9 w1414596999
+Z10 Falu_input_stage.v
+Z11 8/usr/local/modelsim/modeltech/calc1.v
+Z12 F/usr/local/modelsim/modeltech/calc1.v
+L0 5
+Z13 OL;L;6.5c;42
+r1
+31
+Z14 o-work calc1_black_box -L mtiAvm -L mtiOvm -L mtiUPF
+Z15 tCoverOpt 1 CoverFEC 0 CoverShortCircuit 0
+Z16 !s100 02nNVNP_6CRn7KO>n@ZG`1
+!s85 0
+valu_output_stage
+Z17 IMOOmDIl78Afn;f61kXLF21
+Z18 Vi`mPlJPedoA8j;EM61OD?3
+R9
+Z19 Falu_output_stage.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z20 !s100 B_Kgo2;a8cB>LIFKMO1:z3
+!s85 0
+vcalc1
+Z21 IHg5X[B7iA6Id0[[_m^cFl3
+Z22 VORH_:B2miP6HC5g74B]KA3
+R9
+R11
+R12
+L0 7
+R13
+r1
+31
+R14
+R15
+Z23 !s100 9[j7nzhQVFA:@[dB9[I;m1
+!s85 0
+vcalc1_top
+Z24 IgMOV69;96oG9<=C8>Jj=R0
+Z25 V^;=R0:hM91Y<CGMV:OYCc0
+R9
+Z26 Fcalc1_top.v
+R11
+R12
+L0 13
+R13
+r1
+31
+R14
+R15
+Z27 !s100 i:lGI52Xnf^fB8HUoz2^i2
+!s85 0
+vexdbin_mac
+Z28 IAK6G0l:zFnFX5g?f:nAb@2
+Z29 V=Zl3R1B6M288^3a@;JD5?3
+R9
+Z30 Fexdbin_mac.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z31 !s100 ZJ>6FKNf6K5JaiF4hkL]<2
+!s85 0
+vholdreg
+Z32 IOCTTH;^:[M_;NVb31?<8m0
+Z33 VMZTNz=;`Yhdz9XVLn5j?X1
+R9
+Z34 Fholdreg.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z35 !s100 z`cSQSAWEzg1Kh0?VRKe=2
+!s85 0
+vmux_out
+Z36 Izo4FIRDgM_8W:@MV3bSAn3
+Z37 Vh0iCDlm>2AhWefgO>7TLe1
+R9
+Z38 Fmux_out.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z39 !s100 `A31bgL1<=Y07aH[h8TaX1
+!s85 0
+vpriority
+Z40 I6jZ5Ui=d[Yf:MNkmAgnJC0
+Z41 Vog_2Xoa79jmj`5Xhg`2HB2
+R9
+Z42 Fpriority.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z43 !s100 UBTKD=m2??ohoS6KU_lO=2
+!s85 0
+vshifter
+Z44 Ikb1JmlPI>APac`Bidi`D^3
+Z45 V;YacVe8Y_>Ie<POj1Pn;F1
+R9
+Z46 Fshifter.v
+R11
+R12
+L0 5
+R13
+r1
+31
+R14
+R15
+Z47 !s100 gk<Z]G3KL^_bPNH:VC`mO2
+!s85 0
