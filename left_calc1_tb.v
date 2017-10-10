@@ -1,6 +1,6 @@
 `uselib lib=calc1_black_box
 
-module sub_calc1_tb;
+module left_calc1_tb;
 
 wire [0:31]   out_data1, out_data2, out_data3, out_data4;
 wire [0:1]    out_resp1, out_resp2, out_resp3, out_resp4;
@@ -30,18 +30,18 @@ initial
 begin
 
 
-    $display("\nTesting sub operator.. \n");
+    $display("\nTesting shift left operator.. \n");
 
     // First drive reset. Driving bit 1 is enough to reset the design.
     // TEST 1
     resetAll;
-    req1_cmd_in = 2;
+    req1_cmd_in = 5;
     req1_data_in = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
     #200
     req1_cmd_in = 0;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0111;
+    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
     waitForResp1;
-    test(out_data1, 32'b0001_1111_1111_1111_1111_1111_1111_1000, 1);
+    test(out_data1, 32'b1111_1111_1111_1111_1111_1111_1111_1000, 1);
 
     // TEST2 // 0 -0
     resetAll;
