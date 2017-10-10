@@ -10,6 +10,8 @@ reg [0:3]     req1_cmd_in, req2_cmd_in, req3_cmd_in, req4_cmd_in;
 reg [0:31]    req1_data_in, req2_data_in, req3_data_in, req4_data_in;
 reg [1:7]     reset;
 
+integer resp_wire, resp;
+
 calc1 DUV(out_data1, out_data2, out_data3, out_data4, out_resp1, out_resp2, out_resp3, out_resp4, c_clk, req1_cmd_in, req1_data_in, req2_cmd_in, req2_data_in, req3_cmd_in, req3_data_in, req4_cmd_in, req4_data_in, reset);
 
 initial
@@ -42,7 +44,7 @@ begin
     req1_cmd_in = 0;
     req1_data_in = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
     #200
-    waitForResp1;
+    waitForResp1(out_resp1);
     test(out_data1, 32'b0010_0000_0000_0000_0000_0000_0000_0000, 1);
 
     #1000
@@ -55,7 +57,7 @@ begin
     #200
     req1_cmd_in = 0;
     req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-    waitForResp1;
+    waitForResp1(out_resp1);
     test(out_data1, 32'b0000_0000_0000_0000_0000_0000_0000_0000, 2);
 
     // TEST3
@@ -65,7 +67,7 @@ begin
     #200
     req1_cmd_in = 0;
     req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp1;
+    waitForResp1(out_resp1);
     test(out_data1, 32'b0000_0000_0000_0000_0000_0000_0000_1000, 3);
 
     // TEST4
@@ -75,7 +77,7 @@ begin
     #200
     req1_cmd_in = 0;
     req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp1;
+    waitForResp1(out_resp1);
     test(out_data1, 32'b0000_0000_0000_0000_1000_0000_0000_0000, 4);
 
     // TEST5
@@ -137,7 +139,7 @@ begin
     req3_cmd_in = 0;
     req3_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
     waitForResp3;
-    test(out_resp3, 2, 8);
+    test(out_resp3, 2, 10);
 
     // TEST11 // Overflow doesn't return value and wont error 2 [2]
     resetAll;
@@ -147,78 +149,54 @@ begin
     req4_cmd_in = 0;
     req4_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
     waitForResp4;
-    test(out_resp4, 2, 9);
+    test(out_resp4, 2, 11);
 
     $stop;
 
 end // initial begin
 
 always
-    @ (reset or req1_cmd_in or req1_data_in or req2_cmd_in or req2_data_in or req3_cmd_in or req3_data_in or req4_cmd_in or req4_data_in) begin
+    @ (reset or req1_cmd_in or req1_data_in or req2_cmd_in or req2_data_in or req3_cmd_in or req3_data_in or req4_cmd_in or req4_data_in, out_resp1, out_resp2, out_resp3, out_resp4) begin
 
-    end
+end
 
-    task waitForResp1;
+    task waitForResp;
         fork : f
             begin
                 #2000
-                $display("%0t : timeout", $time);
+                $display("%0t : timeout on all responces", $time);
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp1);
-                //$display("%t : resp1 signal", $time);
-                disable f;
-            end
-        join
-    endtask
-
-    task waitForResp2;
-        fork : f
-            begin
-                #2000
-                $display("%0t : timeout", $time);
+                resp = out_resp1;
+                resp_wire = 1;
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp2);
-                disable f;
-            end
-        join
-    endtask
-
-    task waitForResp3;
-        fork : f
-            begin
-                #2000
-                $display("%0t : timeout", $time);
+                resp = out_resp2;
+                resp_wire = 2;
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp3);
-                disable f;
-            end
-        join
-    endtask
-
-    task waitForResp4;
-        fork : f
-            begin
-                #2000
-                $display("%0t : timeout", $time);
+                resp = out_resp3;
+                resp_wire = 3;
                 disable f;
             end
             begin
                 // Wait on signal
-                @(posedge out_resp4);
+                @(posedge out_resp3);
+                resp = out_resp4;
+                resp_wire = 4;
                 disable f;
             end
         join
     endtask
-
 
     task resetAll;
     begin
@@ -239,11 +217,50 @@ always
 
     task test;
         input [0:31] act, exp;
-        input integer n;
-        if ( exp == act)
-            $display("\nTest %0d passed \n\n", n);
-        else
-            $display("\nTest %0d didn't pass \nexp: %0d\nact: %0d \n\n", n, exp, act);
+        input exp_resp_wire, n;
+        integer exp_resp_wire, n;
+
+        integer fail;
+        reg[100*8:0] outputStr;
+
+        begin
+        outputStr = $sformat("Test %d\n", n);
+        fail = 0;
+
+        if (resp_wire != exp_resp_wire)
+            outputStr = $sformat("%sgot unexpected responce wire. exp=%d got=%d\n", outputStr, exp_resp_wire, resp_wire);
+            fail = 1;
+
+        if ( resp != 1 )
+            outputStr = $sformat("%sresponce wire from %d got unexpected responce. exp=1 got=%d\n", outputStr, resp_wire, resp);
+        fail = 1;
+
+        if ( exp != act )
+            outputStr = $sformat("got unexpected result from oporator. exp=%d got=%d\n", outputStr, exp, act);
+        fail = 1;
+
+        if ( !fail )
+            outputStr = $sformat("Test %d Passed.", outputStr, n);
+
+        $display("%s", outputStr);
+        end
+    endtask
+
+    task add;
+    reg [0:31] x1, x2;
+    integer n;
+    begin
+        resetAll;
+        req1_cmd_in = 1;
+        req1_data_in = x1;
+        #200
+        req1_cmd_in = 0;
+        req1_data_in = x2;
+        #200
+        waitForResp;
+        // actual, expected, responce wire, test #
+        test(out_data1, (x1+x2), 1, n);
+    end
     endtask
 
 endmodule // add_calc1_tb
