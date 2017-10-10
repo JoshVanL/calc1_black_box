@@ -47,50 +47,57 @@ begin
     // TEST 1
     resetAll;
     a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
+    b = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        add(a, b, i, "normal");
+    end
+
+    // TEST 2
+    resetAll;
+    a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
     b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
     for (i = 1; i <= 4; i = i + 1)
     begin
-        add(a, b, i, "carry case/default");
-        a = $urandom% (2**20);
-        b = $urandom% (2**20);
+        add(a, b, i, "carry case");
     end
 
-    //// TEST2
-    //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-    //b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
-    //for (i = 1; i <= 4; i = i + 1)
-    //begin
-    //    add(a, b, i, "0 + n");
-    //    b = $urandom% (2**31);
-    //end
+    // TEST3
+    a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+    b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        add(a, b, i, "0 + n");
+        //b = $urandom% (2**31);
+    end
 
     // TEST3
-    //a = 32'b0000_0000_0000_0000_0000_0000_0000_1000;
-    //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    //for (i = 1; i <= 4; i = i + 1)
-    //begin
-    //    add(a, b, i, "n + 0");
-    //    a = $urandom% (2**32);
-    //end
+    a = 32'b0000_0000_0000_0000_0000_0000_0000_1000;
+    b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        add(a, b, i, "n + 0");
+        //a = $urandom% (2**32);
+    end
 
-    //// TEST4
-    //a = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
-    //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    //for (i = 1; i <= 4; i = i + 1)
-    //begin
-    //    add(a, b, i, "0 + 0");
-    //end
+    // TEST4
+    a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+    b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        add(a, b, i, "0 + 0");
+    end
 
-    //// TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-    //// not accepting max value??
-    //resetAll;
-    //a = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
-    //b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
-    //for (i = 1; i <= 4; i = i + 1)
-    //begin
-    //    $display("%0d - %0d", a, b);
-    //    add(a, b, i, "Overflow");
-    //end
+    // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
+    // not accepting max value??
+    resetAll;
+    a = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
+    b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        //$display("%0d - %0d", a, b);
+        add(a, b, i, "Overflow");
+    end
 
     //// TEST9 // Overflow doesn't return value and wont error 2 [2]
     //resetAll;
@@ -139,41 +146,44 @@ end
             begin
                 #4000
                 $display("%0t : timeout on all response wires", $time);
-                resp_wire = -1;
-                resp = -1;
+                resp_wire = 0;
+                resp = 0;
                 out_dat = 0;
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp1);
+                out_dat = out_data1;
                 resp = out_resp1;
                 resp_wire = 1;
-                out_dat = out_data1;
+                $display("%0d", out_data1);
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp2);
+                out_dat = out_data2;
                 resp = out_resp2;
                 resp_wire = 2;
                 $display("%0d", out_data2);
-                out_dat = out_data2;
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp3);
+                out_dat = out_data3;
                 resp = out_resp3;
                 resp_wire = 3;
-                out_dat = out_data3;
+                $display("%0d", out_data3);
                 disable f;
             end
             begin
                 // Wait on signal
                 @(posedge out_resp4);
-                resp = out_resp4;
                 out_dat = out_data4;
+                resp = out_resp4;
+                $display("%0d", out_data4);
                 resp_wire = 4;
                 disable f;
             end
@@ -192,7 +202,7 @@ end
         req3_cmd_in = 0;
         req3_data_in = 0;
         req4_data_in = 0;
-        #400;
+        #1000;
     end
     endtask
 
@@ -261,10 +271,11 @@ end
 
     begin
         resetAll;
+        $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
         putOnWire(inpWire, x1, x2, 1);
         waitForResp;
-        $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
         // actual, expected, responce wire, test name
+        $display("%0d %0d", x1, x2);
         test((x1 + x2), inpWire, testName);
     end
     endtask
