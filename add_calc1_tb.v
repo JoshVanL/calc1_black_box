@@ -37,28 +37,14 @@ begin
     // First drive reset. Driving bit 1 is enough to reset the design.
     // TEST 1
     resetAll;
-    #400
-    req1_cmd_in = 1;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-    #200
-    req1_cmd_in = 0;
-    req1_data_in = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
-    #200
-    waitForResp1(out_resp1);
-    test(out_data1, 32'b0010_0000_0000_0000_0000_0000_0000_0000, 1);
-
-    #1000
-
+    add(32'b0000_0000_0000_0000_0000_0000_0000_0001, 32'b0001_1111_1111_1111_1111_1111_1111_1111, 1, "carry case");
 
     // TEST2
     resetAll;
-    req1_cmd_in = 1;
+    add(32'b0000_0000_0000_0000_0000_0000_0000_0000, 32'b0001_1111_1111_1111_1111_1111_1111_1111, 2, "0 + 0");
+
     req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-    #200
-    req1_cmd_in = 0;
     req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-    waitForResp1(out_resp1);
-    test(out_data1, 32'b0000_0000_0000_0000_0000_0000_0000_0000, 2);
 
     // TEST3
     resetAll;
@@ -219,12 +205,13 @@ end
         input [0:31] act, exp;
         input exp_resp_wire, n;
         integer exp_resp_wire, n;
+        reg[100*8:0] testName;
 
         integer fail;
         reg[100*8:0] outputStr;
 
         begin
-        outputStr = $sformat("Test %d\n", n);
+        outputStr = $sformat("Test %d - %s\n", n, tesName);
         fail = 0;
 
         if (resp_wire != exp_resp_wire)
@@ -249,6 +236,7 @@ end
     task add;
     reg [0:31] x1, x2;
     integer n;
+    reg [100*8:0] testName;
     begin
         resetAll;
         req1_cmd_in = 1;
@@ -258,8 +246,8 @@ end
         req1_data_in = x2;
         #200
         waitForResp;
-        // actual, expected, responce wire, test #
-        test(out_data1, (x1+x2), 1, n);
+        // actual, expected, responce wire, test #, test name
+        test(out_data1, (x1+x2), 1, n, testName);
     end
     endtask
 
