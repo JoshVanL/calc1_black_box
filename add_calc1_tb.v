@@ -10,7 +10,12 @@ reg [0:3]     req1_cmd_in, req2_cmd_in, req3_cmd_in, req4_cmd_in;
 reg [0:31]    req1_data_in, req2_data_in, req3_data_in, req4_data_in;
 reg [1:7]     reset;
 
-integer resp_wire, resp;
+integer totalTests, passedTests, failedTests;
+integer resp_wire;
+reg [0:1] resp;
+reg [0:31] out_dat;
+integer i;
+reg [0:31] a, b;
 
 calc1 DUV(out_data1, out_data2, out_data3, out_data4, out_resp1, out_resp2, out_resp3, out_resp4, c_clk, req1_cmd_in, req1_data_in, req2_cmd_in, req2_data_in, req3_cmd_in, req3_data_in, req4_cmd_in, req4_data_in, reset);
 
@@ -24,6 +29,10 @@ begin
     req3_cmd_in = 0;
     req3_data_in = 0;
     req4_data_in = 0;
+
+    totalTests = 0;
+    passedTests = 0;
+    failedTests = 0;
 end
 
 always #100 c_clk = ~c_clk;
@@ -37,120 +46,102 @@ begin
     // First drive reset. Driving bit 1 is enough to reset the design.
     // TEST 1
     resetAll;
-    add(32'b0000_0000_0000_0000_0000_0000_0000_0001, 32'b0001_1111_1111_1111_1111_1111_1111_1111, 1, "carry case");
+    a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
+    b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
+    for (i = 1; i <= 4; i = i + 1)
+    begin
+        add(a, b, i, "carry case/default");
+        a = $urandom% (2**20);
+        b = $urandom% (2**20);
+    end
 
-    // TEST2
-    resetAll;
-    add(32'b0000_0000_0000_0000_0000_0000_0000_0000, 32'b0001_1111_1111_1111_1111_1111_1111_1111, 2, "0 + 0");
-
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+    //// TEST2
+    //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+    //b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
+    //for (i = 1; i <= 4; i = i + 1)
+    //begin
+    //    add(a, b, i, "0 + n");
+    //    b = $urandom% (2**31);
+    //end
 
     // TEST3
-    resetAll;
-    req1_cmd_in = 1;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_1000;
-    #200
-    req1_cmd_in = 0;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp1(out_resp1);
-    test(out_data1, 32'b0000_0000_0000_0000_0000_0000_0000_1000, 3);
+    //a = 32'b0000_0000_0000_0000_0000_0000_0000_1000;
+    //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+    //for (i = 1; i <= 4; i = i + 1)
+    //begin
+    //    add(a, b, i, "n + 0");
+    //    a = $urandom% (2**32);
+    //end
 
-    // TEST4
-    resetAll;
-    req1_cmd_in = 1;
-    req1_data_in = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
-    #200
-    req1_cmd_in = 0;
-    req1_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp1(out_resp1);
-    test(out_data1, 32'b0000_0000_0000_0000_1000_0000_0000_0000, 4);
+    //// TEST4
+    //a = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
+    //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+    //for (i = 1; i <= 4; i = i + 1)
+    //begin
+    //    add(a, b, i, "0 + 0");
+    //end
 
-    // TEST5
-    resetAll;
-    req2_cmd_in = 1;
-    req2_data_in = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
-    #200
-    req2_cmd_in = 0;
-    req2_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp2;
-    test(out_data2, 32'b0000_0000_0000_0000_1000_0000_0000_0000, 5);
+    //// TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
+    //// not accepting max value??
+    //resetAll;
+    //a = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
+    //b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
+    //for (i = 1; i <= 4; i = i + 1)
+    //begin
+    //    $display("%0d - %0d", a, b);
+    //    add(a, b, i, "Overflow");
+    //end
 
-    // TEST6
-    resetAll;
-    req3_cmd_in = 1;
-    req3_data_in = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
-    #200
-    req3_cmd_in = 0;
-    req3_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp3;
-    test(out_data3, 32'b0000_0000_0000_0000_1000_0000_0000_0000, 6);
+    //// TEST9 // Overflow doesn't return value and wont error 2 [2]
+    //resetAll;
+    //req2_cmd_in = 1;
+    //req2_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
+    //#200
+    //req2_cmd_in = 0;
+    //req2_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
+    //waitForResp2;
+    //test(out_resp2, 2, 9);
 
-    // TEST7 //reg 4 times out
-    resetAll;
-    req4_cmd_in = 1;
-    req4_data_in = 32'b0000_0000_0000_0000_1000_0000_0000_0000;
-    #200
-    req4_cmd_in = 0;
-    req4_data_in = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-    waitForResp4;
-    test(out_data4, 32'b0000_0000_0000_0000_1000_0000_0000_0000, 7);
+    //// TEST10 // Overflow
+    //resetAll;
+    //req3_cmd_in = 1;
+    //req3_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
+    //#200
+    //req3_cmd_in = 0;
+    //req3_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
+    //waitForResp3;
+    //test(out_resp3, 2, 10);
 
-    // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-    // not accepting max value??
-    resetAll;
-    req1_cmd_in = 1;
-    req1_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
-    #200
-    req1_cmd_in = 0;
-    req1_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
-    waitForResp1;
-    test(out_resp1, 2, 8);
+    //// TEST11 // Overflow doesn't return value and wont error 2 [2]
+    //resetAll;
+    //req4_cmd_in = 1;
+    //req4_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
+    //#200
+    //req4_cmd_in = 0;
+    //req4_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
+    //waitForResp4;
+    //test(out_resp4, 2, 11);
 
-    // TEST9 // Overflow doesn't return value and wont error 2 [2]
-    resetAll;
-    req2_cmd_in = 1;
-    req2_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
-    #200
-    req2_cmd_in = 0;
-    req2_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
-    waitForResp2;
-    test(out_resp2, 2, 9);
 
-    // TEST10 // Overflow
-    resetAll;
-    req3_cmd_in = 1;
-    req3_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
-    #200
-    req3_cmd_in = 0;
-    req3_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
-    waitForResp3;
-    test(out_resp3, 2, 10);
-
-    // TEST11 // Overflow doesn't return value and wont error 2 [2]
-    resetAll;
-    req4_cmd_in = 1;
-    req4_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000;
-    #200
-    req4_cmd_in = 0;
-    req4_data_in = 32'b1000_0000_0000_0000_0000_0000_0000_0000; //Overflow
-    waitForResp4;
-    test(out_resp4, 2, 11);
+    finish;
 
     $stop;
 
 end // initial begin
 
 always
-    @ (reset or req1_cmd_in or req1_data_in or req2_cmd_in or req2_data_in or req3_cmd_in or req3_data_in or req4_cmd_in or req4_data_in, out_resp1, out_resp2, out_resp3, out_resp4) begin
+    @ (reset or req1_cmd_in or req1_data_in or req2_cmd_in or req2_data_in or req3_cmd_in or req3_data_in or req4_cmd_in or req4_data_in, out_resp1, out_resp2, out_resp3, out_resp4, resp, resp_wire) begin
 
 end
 
     task waitForResp;
         fork : f
             begin
-                #2000
-                $display("%0t : timeout on all responces", $time);
+                #4000
+                $display("%0t : timeout on all response wires", $time);
+                resp_wire = -1;
+                resp = -1;
+                out_dat = 0;
                 disable f;
             end
             begin
@@ -158,6 +149,7 @@ end
                 @(posedge out_resp1);
                 resp = out_resp1;
                 resp_wire = 1;
+                out_dat = out_data1;
                 disable f;
             end
             begin
@@ -165,6 +157,8 @@ end
                 @(posedge out_resp2);
                 resp = out_resp2;
                 resp_wire = 2;
+                $display("%0d", out_data2);
+                out_dat = out_data2;
                 disable f;
             end
             begin
@@ -172,12 +166,14 @@ end
                 @(posedge out_resp3);
                 resp = out_resp3;
                 resp_wire = 3;
+                out_dat = out_data3;
                 disable f;
             end
             begin
                 // Wait on signal
-                @(posedge out_resp3);
+                @(posedge out_resp4);
                 resp = out_resp4;
+                out_dat = out_data4;
                 resp_wire = 4;
                 disable f;
             end
@@ -196,59 +192,123 @@ end
         req3_cmd_in = 0;
         req3_data_in = 0;
         req4_data_in = 0;
-        #300;
+        #400;
     end
     endtask
 
 
     task test;
-        input [0:31] act, exp;
-        input exp_resp_wire, n;
-        integer exp_resp_wire, n;
+        input exp, exp_resp_wire, testName;
+
+        reg[0:63] exp;
+        integer exp_resp_wire;
         reg[100*8:0] testName;
 
-        integer fail;
-        reg[100*8:0] outputStr;
+
+        reg fail;
 
         begin
-        outputStr = $sformat("Test %d - %s\n", n, tesName);
+        totalTests = totalTests + 1;
+
         fail = 0;
 
         if (resp_wire != exp_resp_wire)
-            outputStr = $sformat("%sgot unexpected responce wire. exp=%d got=%d\n", outputStr, exp_resp_wire, resp_wire);
+        begin
+            $display("got response form an unexpected wire. exp=%0d got=%0d", exp_resp_wire, resp_wire);
             fail = 1;
+        end
 
         if ( resp != 1 )
-            outputStr = $sformat("%sresponce wire from %d got unexpected responce. exp=1 got=%d\n", outputStr, resp_wire, resp);
-        fail = 1;
+        begin
+            $display("response wire from %0d got unexpected response. exp=1 got=%0d", resp_wire, resp);
+            fail = 1;
+        end
 
-        if ( exp != act )
-            outputStr = $sformat("got unexpected result from oporator. exp=%d got=%d\n", outputStr, exp, act);
-        fail = 1;
+        if ( exp != out_dat )
+        begin
+            $display("got unexpected result from operator. exp=%0d got=%0d", exp, out_dat);
+            fail = 1;
+        end
 
-        if ( !fail )
-            outputStr = $sformat("Test %d Passed.", outputStr, n);
+        if ( fail == 1 )
+        begin
+            failedTests = failedTests + 1;
+            $display("Test %0d Failed.\n", totalTests);
+        end
+        else
+        begin
+            passedTests = passedTests + 1;
+            $display("Test %0d Passed.\n", totalTests);
+        end
 
-        $display("%s", outputStr);
         end
     endtask
 
+    task finish;
+        begin
+            $display("Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d\n", totalTests, passedTests, failedTests);
+        end
+    endtask
+
+
     task add;
-    reg [0:31] x1, x2;
-    integer n;
+    input x1, x2, inpWire, testName;
+
+    //reg [0:31] x1, x2;
     reg [100*8:0] testName;
+    integer inpWire;
+    reg[0:31] x1, x2;
+
     begin
         resetAll;
-        req1_cmd_in = 1;
-        req1_data_in = x1;
-        #200
-        req1_cmd_in = 0;
-        req1_data_in = x2;
-        #200
+        putOnWire(inpWire, x1, x2, 1);
         waitForResp;
-        // actual, expected, responce wire, test #, test name
-        test(out_data1, (x1+x2), 1, n, testName);
+        $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
+        // actual, expected, responce wire, test name
+        test((x1 + x2), inpWire, testName);
     end
+    endtask
+
+
+    task putOnWire;
+        input inpWire, data1, data2, cmd;
+
+        integer inpWire;
+        reg [0:31] data1, data2;
+        reg [0:3]  cmd;
+        begin
+            case (inpWire)
+                1:begin
+                        req1_cmd_in = cmd;
+                        req1_data_in = data1;
+                        #200;
+                        req1_cmd_in = 0;
+                        req1_data_in = data2;
+                    end
+                2:begin
+                        req2_cmd_in = cmd;
+                        req2_data_in = data1;
+                        #300;
+                        req2_cmd_in = 0;
+                        req2_data_in = data2;
+                    end
+                3:begin
+                        req3_cmd_in = cmd;
+                        req3_data_in = data1;
+                        #200;
+                        req3_cmd_in = 0;
+                        req3_data_in = data2;
+                    end
+                4:begin
+                        req4_cmd_in = cmd;
+                        req4_data_in = data1;
+                        #200;
+                        req4_cmd_in = 0;
+                        req4_data_in = data2;
+                    end
+            endcase
+            #200;
+        end
     endtask
 
 endmodule // add_calc1_tb
