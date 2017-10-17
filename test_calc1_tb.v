@@ -39,9 +39,9 @@ begin
     failedTests = 0;
 
     testAdd;
-    //testSub;
-    //testLeft;
-    //testRight;
+    testSub;
+    testLeft;
+    testRight;
 
     Parallel2;
 
@@ -327,31 +327,40 @@ begin
 
     $display("\n --- Testing operators in parallel.. ---\n");
 
-    //resetAll;
-    //putOnWire(1, a, 2);
-    //putOnWire(3, b, 2);
-    //#200;
-    //putOnWire(1, a, 0);
-    //putOnWire(3, b, 0);
-
-    //waitForResp;
-    //test(0, 1, "Parallel1");
-    //waitForResp;
-    //test(0, 3, "Parallel2");
-    b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
     a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
     for (i = 1; i <= 4; i = i + 1) begin
         for (j = 1; j <= 4; j = j + 1) begin
-            parallel2(a, b, 1, i, a, b, 1, j, "parallel command test - add");
+            if (i != j) begin
+                parallel2(a, b, 1, i, a, b, 1, j, "parallel command test - add");
+            end
         end
     end
     for (i = 1; i <= 4; i = i + 1) begin
         for (j = 1; j <= 4; j = j + 1) begin
-            parallel2(a, b, 2, i, a, b, 2, j, "parallel command test - add");
+           if (i != j) begin
+                parallel2(a, b, 2, i, a, b, 2, j, "parallel command test - sub");
+            end
         end
     end
-    //input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, testName;
-
+    a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+    for (i = 1; i <= 4; i = i + 1) begin
+        for (j = 1; j <= 4; j = j + 1) begin
+           if (i != j) begin
+                parallel2(a, b, 5, i, a, b, 5, j, "parallel command test - left");
+            end
+        end
+    end
+    a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    b = 32'b0000_0000_0000_0000_0000_0000_0000_1111;
+    for (i = 1; i <= 4; i = i + 1) begin
+        for (j = 1; j <= 4; j = j + 1) begin
+           if (i != j) begin
+                parallel2(a, b, 6, i, a, b, 6, j, "parallel command test - right");
+            end
+        end
+    end
 end
 endtask
 
@@ -431,11 +440,10 @@ always
 
 
     task test;
-        input exp, exp_resp_wire, testName;
+        input exp, exp_resp_wire;
 
         reg[0:31] exp;
         integer exp_resp_wire;
-        reg[100*8:0] testName;
 
 
         reg fail;
@@ -445,7 +453,7 @@ always
 
             if (resp_wire != exp_resp_wire)
             begin
-                $display("got response form an unexpected wire. exp=%0d got=%0d", exp_resp_wire, resp_wire);
+                $display("got response from an unexpected wire. exp=%0d got=%0d", exp_resp_wire, resp_wire);
                 fail = 1;
             end
 
@@ -498,7 +506,7 @@ always
             waitForResp;
             // actual, expected, responce wire, test name
             //$display("%0d %0d", x1, x2);
-            test((x1 + x2), inpWire, testName);
+            test((x1 + x2), inpWire);
         end
     endtask
 
@@ -519,7 +527,7 @@ always
             // actual, expected, responce wire, test name
             //$display("%0d %0d", x1, x2);
             //$display("%0d", (x1-x2));
-            test((x1 - x2), inpWire, testName);
+            test((x1 - x2), inpWire);
         end
     endtask
 
@@ -542,7 +550,7 @@ always
             //$display("%0d - %0d", x1, x2);
             //$display("%0d", (x1<<x2));
             //exp = x1 << x2;
-            test((x1 << x2), inpWire, testName);
+            test((x1 << x2), inpWire);
         end
     endtask
 
@@ -564,7 +572,7 @@ always
             // actual, expected, responce wire, test name
             //$display("%0d %0d", x1, x2);
             //$display("%0d", (x1-x2));
-            test((x1 >> x2), inpWire, testName);
+            test((x1 >> x2), inpWire);
         end
     endtask
 
@@ -579,7 +587,7 @@ always
         begin
             //$display("%0d - %0d", x1, x2);
             //$display("%0d", x1 >> x2);
-            totalTests = totalTests + 1;
+            totalTests = totalTests + 2;
             resetAll;
             $display("Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
             putOnWire(wire1, x11, cmd1  );
@@ -588,9 +596,9 @@ always
             putOnWire(wire1, x12, 0);
             putOnWire(wire2, x22, 0);
             waitForResp;
-            test(resolve(x11, x12, cmd1), wire1, "Parallel1");
+            test(resolve(x11, x12, cmd1), wire1);
             waitForResp;
-            test(resolve(x21, x22, cmd1), wire2, "Parallel2");
+            test(resolve(x21, x22, cmd2), wire2);
         end
     endtask
 
