@@ -14,7 +14,7 @@ integer totalTests, passedTests, failedTests;
 integer resp_wire;
 reg [0:1] resp;
 reg [0:31] out_dat;
-integer i, j;
+integer i, j, k, l;
 reg [0:31] a, b;
 
 calc1 DUV(out_data1, out_data2, out_data3, out_data4, out_resp1, out_resp2, out_resp3, out_resp4, c_clk, req1_cmd_in, req1_data_in, req2_cmd_in, req2_data_in, req3_cmd_in, req3_data_in, req4_cmd_in, req4_data_in, reset);
@@ -38,10 +38,10 @@ begin
     passedTests = 0;
     failedTests = 0;
 
-    testAdd;
-    testSub;
-    testLeft;
-    testRight;
+    //testAdd;
+    //testSub;
+    //testLeft;
+    //testRight;
 
     Parallel2;
 
@@ -361,6 +361,19 @@ begin
             end
         end
     end
+    //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    //b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
+    //for (i = 1; i <= 4; i = i + 1) begin
+    //    for (j = 1; j <= 4; j = j + 1) begin
+    //        for (k = 1; k <= 6; k  = k + 1) begin
+    //            for (l = 1; l <= 6; l  = l + 1) begin
+    //            if (i != j && k != 3 && k != 4 && l != 3 && l != 4) begin
+    //                parallel2(a, b, k, i, a, b, l, j, "parallel command test - add");
+    //            end
+    //            end
+    //        end
+    //    end
+    //end
 end
 endtask
 
@@ -434,7 +447,8 @@ always
             req3_cmd_in = 0;
             req3_data_in = 0;
             req4_data_in = 0;
-            #1000;
+            req4_cmd_in = 0;
+            #400;
         end
     endtask
 
