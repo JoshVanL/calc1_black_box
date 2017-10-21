@@ -41,16 +41,16 @@ begin
     failedTests = 0;
 
 
-    //testAdd;
-    //testSub;
-    //testLeft;
-    //testRight;
+    testAdd;
+    testSub;
+    testLeft;
+    testRight;
 
-    //testWrong;
+    testWrong;
 
-    //testParallel2;
-    //testParallel3;
-    //testParallel4;
+    testParallel2;
+    testParallel3;
+    testParallel4;
 
     finish;
 
@@ -89,27 +89,57 @@ task testAdd;
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             driver(a, b, 1, i, "0 + 0");
         end
 
         a = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
-        b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
+        b = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             driver(a, b, 1, i, "Overflow");
         end
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101; // f
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0001_0100_0110_1111_0100_0000_1001_0000;
-        driver(a, b, 1, 1, "Add in 5th position");
+        for (i = 0; i <= 4; i = i + 1) begin
+            driver(a, (b + (i * 2)), 1, 1, "Add in 5th position");
+        end
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101; // f
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b1001_0101_1111_0000_0000_0000_1010_0000;
-        driver(a, b, 1, 1, "Add in 6th position");
+        for (i = 0; i <= 4; i = i + 1) begin
+            driver(a, (b + (i * 2)), 1, 1, "Add in 6th position");
+        end
 
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
+        b = 32'b0000_0000_0000_0000_0011_0000_0011_0000;
+        driver(a, b, 1, 1, "Add in 5 + 6 position");
+
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
+        b = 32'b0000_0000_0000_0000_0001_0000_0000_0000;
+        for (i = 1; i <= 4; i = i + 1) begin
+            driver(a, (b + (i*2)), 1, 1, "Add in 13th position");
+        end
+
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
+        b = 32'b0000_0000_0000_0000_0010_0000_0000_0000;
+        for (i = 1; i <= 4; i = i + 1) begin
+            driver(a, (b + (i*2)), 1, 1, "Add in 14th position");
+        end
+
+        a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
+        b = 32'b0000_0000_0000_0000_0011_0000_0000_0000;
+        driver(a, b, 1, 1, "Add in 13 + 14 position");
+
+        a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
+        b = 32'b0001_0100_1111_1111_1111_1111_1100_1101;
+        for (i=0; i < 31; i = i + 1) begin
+            driver(a, b, 1, 1, "Test first data input bugs");
+            a = a * 2;
+        end
 
     end
 endtask
@@ -118,46 +148,46 @@ task testSub;
     begin
         $display("\n --- Testing subtracting operator.. ---\n");
 
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
-        //b = 32'b0000_0000_0001_0011_0010_0000_0000_0001;
-        //for (i = 1; i <= 4; i = i + 1) begin
-        //    driver(a, b, 2, i, "normal");
-        //end
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
+        b = 32'b0000_0000_0001_0011_0010_0000_0000_0001;
+        for (i = 1; i <= 4; i = i + 1) begin
+            driver(a, b, 2, i, "normal");
+        end
 
-        //a = 32'b0001_1111_0000_0000_0000_0001_1111_1111;
-        //b = 32'b0000_0000_0000_1000_0000_0000_0000_0000;
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    driver(a, b, 2, i, "carry case");
-        //end
+        a = 32'b0001_1111_0000_0000_0000_0001_1111_1111;
+        b = 32'b0000_0000_0000_1000_0000_0000_0000_0000;
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            driver(a, b, 2, i, "carry case");
+        end
 
-        //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    b = $urandom% (2**31);
-        //    driver(a, b, 2, i, "0 - n");
-        //end
+        a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            b = $urandom% (2**31);
+            driver(a, b, 2, i, "0 - n");
+        end
 
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    a = $urandom% (2**31);
-        //    driver(a, b, 2, i, "n - 0");
-        //end
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            a = $urandom% (2**31);
+            driver(a, b, 2, i, "n - 0");
+        end
 
-        //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    driver(a, b, 2, i, "0 - 0");
-        //end
+        a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            driver(a, b, 2, i, "0 - 0");
+        end
 
-        //a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
-        //b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    driver(a, b, 2, i, "Underflow");
-        //end
+        a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
+        b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            driver(a, b, 2, i, "Underflow");
+        end
 
     end
 endtask
