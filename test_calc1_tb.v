@@ -104,41 +104,63 @@ task testAdd;
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0001_0100_0110_1111_0100_0000_1001_0000;
-        for (i = 0; i <= 4; i = i + 1) begin
-            driver(a, (b + (i * 2)), 1, 1, "Add in 5th position");
+        c = 1;
+        for (j=1; j <= 2; j = j + 1) begin
+            for (i = 0; i <= 4; i = i + 1) begin
+                driver(a, (b + (i * 2)), 1, c, "Add in 5th position");
+            end
+            c = 3;
         end
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b1001_0101_1111_0000_0000_0000_1010_0000;
-        for (i = 0; i <= 4; i = i + 1) begin
-            driver(a, (b + (i * 2)), 1, 1, "Add in 6th position");
+        c = 1;
+        for (j=1; j <= 2; j = j + 1) begin
+            for (i = 0; i <= 4; i = i + 1) begin
+                driver(a, (b + (i * 2)), 1, c, "Add in 6th position");
+            end
+            c = 3;
         end
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0000_0000_0000_0000_0011_0000_0011_0000;
         driver(a, b, 1, 1, "Add in 5 + 6 position");
+        driver(a, b, 1, 3, "Add in 5 + 6 position");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0000_0000_0000_0000_0001_0000_0000_0000;
-        for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, (b + (i*2)), 1, 1, "Add in 13th position");
+        c = 1;
+        for (j=1; j <= 2; j = j + 1) begin
+            for (i = 1; i <= 4; i = i + 1) begin
+                driver(a, (b + (i*2)), 1, c, "Add in 13th position");
+            end
+            c = 3;
         end
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0000_0000_0000_0000_0010_0000_0000_0000;
-        for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, (b + (i*2)), 1, 1, "Add in 14th position");
+        c = 1;
+        for (j=1; j <= 2; j = j + 1) begin
+            for (i = 1; i <= 4; i = i + 1) begin
+                driver(a, (b + (i*2)), 1, c, "Add in 14th position");
+            end
+            c = 3;
         end
 
         a = 32'b0001_0100_1111_1111_1111_1111_1110_1101;
         b = 32'b0000_0000_0000_0000_0011_0000_0000_0000;
         driver(a, b, 1, 1, "Add in 13 + 14 position");
+        driver(a, b, 1, 3, "Add in 13 + 14 position");
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         b = 32'b0001_0100_1111_1111_1111_1111_1100_1101;
-        for (i=0; i < 31; i = i + 1) begin
-            driver(a, b, 1, 1, "Test first data input bugs");
-            a = a * 2;
+        c = 1;
+        for (j=1; j <= 2; j = j + 1) begin
+            for (i=0; i < 31; i = i + 1) begin
+                driver(a, b, 1, c, "Test first data input bugs");
+                a = a * 2;
+            end
+            c = 3;
         end
 
     end
@@ -188,6 +210,7 @@ task testSub;
         begin
             driver(a, b, 2, i, "Underflow");
         end
+
 
     end
 endtask
@@ -391,7 +414,7 @@ task testParallel4;
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-            //a = ;
+        //a = ;
         driver4($urandom% (2**31), $urandom% (2**31), 1, 1, $urandom% (2**31), $urandom% (2**31), 1, 2, $urandom% (2**31), $urandom% (2**31), 1, 3, $urandom% (2**31), $urandom% (2**31), 1, 4, "parallel 4 command test - add");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
@@ -910,4 +933,4 @@ always
 
     end
 
-endmodule
+    endmodule
