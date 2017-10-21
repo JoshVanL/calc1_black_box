@@ -16,7 +16,8 @@ reg [0:1] resp;
 reg [0:31] out_dat;
 integer i, j, k, l;
 reg [0:31] a, b, c;
-reg [0:31] max;
+
+reg passed;
 
 calc1 DUV(out_data1, out_data2, out_data3, out_data4, out_resp1, out_resp2, out_resp3, out_resp4, c_clk, req1_cmd_in, req1_data_in, req2_cmd_in, req2_data_in, req3_cmd_in, req3_data_in, req4_cmd_in, req4_data_in, reset);
 
@@ -39,12 +40,11 @@ begin
     passedTests = 0;
     failedTests = 0;
 
-    max = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
 
     //testAdd;
     //testSub;
     //testLeft;
-    testRight;
+    //testRight;
 
     //Parallel2;
 
@@ -59,59 +59,50 @@ task testAdd;
 
         $display("\n --- Testing adding operator.. ---\n");
 
-        // First drive reset. Driving bit 1 is enough to reset the design.
-        // TEST 1
         resetAll;
         a = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
         b = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         for (i = 1; i <= 4; i = i + 1) begin
-            add(a, b, i, "normal");
+            driver(a, b, 1, i, "normal");
         end
 
-        // TEST 2
         resetAll;
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            add(a, b, i, "carry case");
+            driver(a, b, 1, i, "carry case");
         end
 
-         //TEST3
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            add(a, b, i, "0 + n");
-            //b = $urandom% (2**31);
+            driver(a, b, 1, i, "0 + n");
         end
 
-        // TEST3
         a = 32'b0000_0000_0000_0000_0000_0000_0000_1000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            add(a, b, i, "n + 0");
+            driver(a, b, 1, i, "n + 0");
             //a = $urandom% (2**32);
         end
 
-         //TEST4
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            add(a, b, i, "0 + 0");
+            driver(a, b, 1, i, "0 + 0");
         end
 
-        // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-        // not accepting max value??
         resetAll;
         a = 32'b1111_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
         for (i = 1; i <= 4; i = i + 1)
         begin
           //$display("%0d - %0d", a, b);
-          add(a, b, i, "Overflow");
+          driver(a, b, 1, i, "Overflow");
         end
 
 
@@ -123,55 +114,47 @@ task testSub;
 
         $display("\n --- Testing subtracting operator.. ---\n");
 
-        // First drive reset. Driving bit 1 is enough to reset the design.
-        // TEST 1
         resetAll;
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         //$display("%0d", a-b);
         for (i = 1; i <= 4; i = i + 1) begin
             //b = $urandom%(2**10);
-            sub(a, b, i, "normal");
+            driver(a, b, 2, i, "normal");
         end
 
-        // TEST 2
         resetAll;
         a = 32'b0001_1111_1111_0000_0000_1111_1111_1111;
         b = 32'b0000_0000_0000_1000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             //a = $urandom%(2**31);
-            sub(a, b, i, "carry case");
+            driver(a, b, 2, i, "carry case");
         end
 
-        // TEST3
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
         for (i = 1; i <= 4; i = i + 1)
         begin
             //b = $urandom%(2**31);
-            sub(a, b, i, "0 - n");
+            driver(a, b, 2, i, "0 - n");
         end
 
-        // TEST3
         a = 32'b0000_0011_0100_0100_0100_0000_0000_1000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
             a = $urandom% (2**31);
-            sub(a, b, i, "n - 0");
+            driver(a, b, 2, i, "n - 0");
         end
 
-        // TEST4
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            sub(a, b, i, "0 - 0");
+            driver(a, b, 2, i, "0 - 0");
         end
 
-        // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-        // not accepting max value??
         resetAll;
         a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
         b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
@@ -179,10 +162,10 @@ task testSub;
         begin
             //a = $urandom% (2**30);
             //$display("%0d - %0d", a, b);
-            sub(a, b, i, "Underflow");
+            driver(a, b, 2, i, "Underflow");
         end
 
-    end //// initial begin
+    end
 endtask
 
 
@@ -191,63 +174,55 @@ task testLeft;
 
         $display("\n --- Testing shift left operator.. ---\n");
 
-        // First drive reset. Driving bit 1 is enough to reset the design.
-        // TEST 1
         resetAll;
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         //$display("%0d", a-b);
         for (i = 1; i <= 4; i = i + 1) begin
-            left(a, b, i, "normal", 1);
+            driver(a, b, 5, i, "normal");
             //a = $urandom% (2**21);
             //b = $urandom% (2**3);
         end
 
-        // TEST 2
         resetAll;
         a = 32'b0000_1111_1111_0000_0000_1111_1111_1111;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            left(a, b, i, "carry case", 1);
+            driver(a, b, 5, i, "carry case");
         end
 
-        // TEST3
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0101_1110;
         for (i = 1; i <= 4; i = i + 1)
         begin
             b = $urandom% (2**31);
-            left(a, b, i, "0 << n", 1);
+            driver(a, b, 5, i, "0 << n");
         end
 
-        // TEST3
         a = 32'b0000_0011_0100_0100_0100_0000_0000_1000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             a = $urandom% (2**31);
-            left(a, b, i, "n << 0", 1);
+            driver(a, b, 5, i, "n << 0");
         end
 
-        // TEST4
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            left(a, b, i, "0 << 0", 1);
+            driver(a, b, 5, i, "0 << 0");
         end
 
-        // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-        // not accepting max value??
         resetAll;
-        a = 32'b1100_0000_0101_0100_0110_0000_1110_0000;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0100; //OverflowQ
+        a = 32'b1111_0000_1111_0000_1111_0000_1111_0000; /////////////////////////////////////////////////////////////////////////////
+        b = 32'b0000_0000_0000_0000_0000_0000_0010_0010; //OverflowQ
         for (i = 1; i <= 4; i = i + 1)
         begin
             //$display("%0d - %0d", a, b);
             //a = $urandom% (2**31);
-            left(a, b, i, "Overflow", 2);
+            driver(a, b, 5, i, "Overflow");
         end
 
     end // initial begin
@@ -258,119 +233,112 @@ task testRight;
 
         $display("\n --- Testing shift right operator.. --- \n");
 
-        // First drive reset. Driving bit 1 is enough to reset the design.
-        // TEST 1
-        //resetAll;
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        ////$display("%0d", a-b);
-        //for (i = 1; i <= 4; i = i + 1) begin
-        //    right(a, b, i, "normal", 1);
-        //end
+        resetAll;
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+        //$display("%0d", a-b);
+        for (i = 1; i <= 4; i = i + 1) begin
+            driver(a, b, 6, i, "normal");
+        end
 
-        //resetAll;
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1100;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        ////$display("%0d", a-b);
-        //for (i = 1; i <= 4; i = i + 1) begin
-        //    a = $urandom% (2**31);
-        //    right(a, b, i, "n >> 1", 1);
-        //end
+        resetAll;
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_1100;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
+        //$display("%0d", a-b);
+        for (i = 1; i <= 4; i = i + 1) begin
+            a = $urandom% (2**31);
+            driver(a, b, 6, i, "n >> 1");
+        end
 
-        // TEST 2
-        //resetAll;
-        //a = 32'b1111_1111_0000_1111_0000_1111_0000_1111;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_1010;
-        //c = 32'b0000_0000_0000_0100_0000_0100_0000_0000;
+        resetAll;
+        a = 32'b1111_1111_0000_1111_0000_1111_0000_1111;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_1010;
+        c = 32'b0000_0000_0000_0100_0000_0100_0000_0000;
         //for (j = 1; j <= 16; j = j + 1) begin
-        //    for (i = 1; i <= 4; i = i + 1) begin
-        //        right(a, (b+c), i, "carry case", 2);
-        //    end
-        //    //c = c << 1;
+            for (i = 1; i <= 4; i = i + 1) begin
+                driver(a, (b+c), 6, i, "carry case");
+            end
+            //c = c << 1;
         //end
-        //b = b << 1;
 
-        //// TEST3
-        //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-        //b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
+        a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+        b = 32'b0001_1111_1111_1111_1111_1111_1111_1111;
         //for (j = 1; j <= 16; j = j + 1) begin
-        //    b = $urandom% (2**31);
-        //    for (i = 1; i <= 4; i = i + 1) begin
-        //        right(a, b, i, "0 >> n", 1);
-        //    end
+            b = $urandom% (2**31);
+            for (i = 1; i <= 4; i = i + 1) begin
+                driver(a, b, 6, i, "0 >> n");
+            end
         //end
 
-        //// TEST3
-        //a = 32'b0000_0011_0100_0100_0100_0000_0000_1000;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-        //a = $urandom% (2**31);
-        //for (i = 1; i <= 4; i = i + 1) begin
-        //    right(a, b, i, "n >> 0", 1);
-        //    //a = $urandom% (2**32);
-        //end
+        a = 32'b0000_0011_0100_0100_0100_0000_0000_1000;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+        a = $urandom% (2**31);
+        for (i = 1; i <= 4; i = i + 1) begin
+            driver(a, b, 6, i, "n >> 0");
+            //a = $urandom% (2**32);
+        end
 
-        //// TEST4
-        //a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
-        //for (i = 1; i <= 4; i = i + 1)
-        //begin
-        //    right(a, b, i, "0 >> 0", 1);
-        //end
+        a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
+        for (i = 1; i <= 4; i = i + 1)
+        begin
+            driver(a, b, 6, i, "0 >> 0");
+        end
 
-        // TEST8 // Overflow doesn't return value and wont error 2 [1] returns 0,
-        // not accepting max value??
         resetAll;
         a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
         b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
         for (i = 1; i <= 4; i = i + 1)
         begin
             //$display("%0d - %0d", a, b);
-            right(a, b, i, "Underflow", 2);
+            driver(a, b, 6, i, "Underflow");
         end
 
-    end // initial begin
+    end
 endtask
 
-task Parallel2;
+task testParallel2;
 begin
 
-    $display("\n --- Testing operators in parallel.. ---\n");
+    $display("\n --- Testing 2 operators in parallel.. ---\n");
 
     a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
     b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
     for (i = 1; i <= 4; i = i + 1) begin
         for (j = 1; j <= 4; j = j + 1) begin
             if (i != j) begin
-                parallel2(a, b, 1, i, a, b, 1, j, "parallel command test - add");
+                driver2(a, b, 1, i, a, b, 1, j, "parallel command test - add");
             end
         end
     end
-    for (i = 1; i <= 4; i = i + 1) begin
-        for (j = 1; j <= 4; j = j + 1) begin
-           if (i != j) begin
-                parallel2(a, b, 2, i, a, b, 2, j, "parallel command test - sub");
-            end
-        end
-    end
-    a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-    b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-    for (i = 1; i <= 4; i = i + 1) begin
-        for (j = 1; j <= 4; j = j + 1) begin
-           if (i != j) begin
-                parallel2(a, b, 5, i, a, b, 5, j, "parallel command test - left");
-            end
-        end
-    end
-    a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-    b = 32'b0000_0000_0000_0000_0000_0000_0000_1111;
-    for (i = 1; i <= 4; i = i + 1) begin
-        for (j = 1; j <= 4; j = j + 1) begin
-           if (i != j) begin
-                parallel2(a, b, 6, i, a, b, 6, j, "parallel command test - right");
-            end
-        end
-    end
+
+    //for (i = 1; i <= 4; i = i + 1) begin
+    //    for (j = 1; j <= 4; j = j + 1) begin
+    //       if (i != j) begin
+    //            parallel2(a, b, 2, i, a, b, 2, j, "parallel command test - sub");
+    //        end
+    //    end
+    //end
+
     //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+    //for (i = 1; i <= 4; i = i + 1) begin
+    //    for (j = 1; j <= 4; j = j + 1) begin
+    //       if (i != j) begin
+    //            parallel2(a, b, 5, i, a, b, 5, j, "parallel command test - left");
+    //        end
+    //    end
+    //end
+    //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+    //b = 32'b0000_0000_0000_0000_0000_0000_0000_1111;
+    //for (i = 1; i <= 4; i = i + 1) begin
+    //    for (j = 1; j <= 4; j = j + 1) begin
+    //       if (i != j) begin
+    //            parallel2(a, b, 6, i, a, b, 6, j, "parallel command test - right");
+    //        end
+    //    end
+    //end
+    ///a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
     //b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
     //for (i = 1; i <= 4; i = i + 1) begin
     //    for (j = 1; j <= 4; j = j + 1) begin
@@ -462,7 +430,7 @@ always
     endtask
 
 
-    task test;
+    task checker;
         input exp, exp_resp_wire, exp_resp;
 
         reg[0:31] exp;
@@ -495,13 +463,13 @@ always
 
             if ( fail == 1 )
             begin
-                failedTests = failedTests + 1;
-                $display("Test %0d Failed.\n", totalTests);
+                passed = 0;
+                $display("Test %0d Failed.", totalTests);
             end
             else
             begin
-                passedTests = passedTests + 1;
-                $display("Test %0d Passed.\n", totalTests);
+                passed = 1;
+                $display("Test %0d Passed.", totalTests);
             end
 
         end
@@ -509,116 +477,55 @@ always
 
     task finish;
         begin
-            $display("Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d\n", totalTests, passedTests, failedTests);
+            $display("Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d", totalTests, passedTests, failedTests);
         end
     endtask
 
+    task driver;
+        input x1, x2, cmd, inpWire, testName;
 
-    task add;
-        input x1, x2, inpWire, testName;
-
-        //reg [0:31] x1, x2;
-        integer inpWire;
         reg[0:31] x1, x2;
+        reg[0:3] cmd;
+        integer inpWire;
         reg [100*8:0] testName;
+
         reg[0:1] exp_resp;
         reg [0:63] work;
 
         begin
             totalTests = totalTests + 1;
-            resetAll;
             $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
-            put2OnWire(inpWire, x1, x2, 1);
+
+            resetAll;
+            put2OnWire(inpWire, x1, x2, cmd);
             waitForResp;
 
-            work = x1 + x2;
-            if (work > max)
-                exp_resp = 2;
+            exp_resp = getExpResp(x1, x2, cmd);
+            checker(resolve(x1, x2, cmd), inpWire, exp_resp);
+
+            if (passed == 1 )
+                passedTests = passedTests + 1;
             else
-                exp_resp = 1;
-
-
-            test((x1 + x2), inpWire, exp_resp);
+                failedTests = failedTests + 1;
+            $display();
         end
     endtask
 
-    task sub;
-        input x1, x2, inpWire, testName;
 
-        //reg [0:31] x1, x2;
-        integer inpWire;
-        reg[0:31] x1, x2;
-        reg [100*8:0] testName;
-        reg[0:1] exp_resp;
 
-        begin
-            totalTests = totalTests + 1;
-            resetAll;
-            $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
-            put2OnWire(inpWire, x1, x2, 2);
-            waitForResp;
+    task driver2;
+        input x11, x12, cmd1, exp_resp1, wire1, x21, x22, cmd2, exp_resp2, wire2, testName;
 
-            if (x2 > x1)
-                exp_resp = 2;
-            else
-                exp_resp = 1;
-
-            test(resolve(x1, x2, 1), inpWire, exp_resp);
-        end
-    endtask
-
-    task left;
-        input x1, x2, inpWire, testName, exp_resp;
-        integer inpWire;
-        reg[0:31] x1, x2;
-        reg [100*8:0] testName;
-        reg[0:1] exp_resp;
-
-        begin
-            totalTests = totalTests + 1;
-            resetAll;
-            $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
-            put2OnWire(inpWire, x1, x2, 5);
-            waitForResp;
-
-            test(resolve(x1, x2, 5), inpWire, exp_resp);
-        end
-    endtask
-
-    task right;
-        input x1, x2, inpWire, testName, exp_resp;
-        //reg [0:31] x1, x2;
-        integer inpWire;
-        reg[0:31] x1, x2;
-        reg [100*8:0] testName;
-        reg[0:1] exp_resp;
-
-        begin
-            //$display("%0d - %0d", x1, x2);
-            //$display("%0d", x1 >> x2);
-            totalTests = totalTests + 1;
-            resetAll;
-            $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
-            put2OnWire(inpWire, x1, x2, 6);
-            waitForResp;
-            // actual, expected, responce wire, test name
-            //$display("%0d %0d", x1, x2);
-            //$display("%0d", (x1-x2));
-            test(resolve(x1, x2, 6), inpWire, exp_resp);
-        end
-    endtask
-
-    task parallel2;
-        input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, testName;
-        //reg [0:31] x1, x2;
         integer wire1, wire2;
         reg [0:3]  cmd1, cmd2;
         reg[0:31] x11, x12, x21, x22;
         reg [100*8:0] testName;
+        reg result;
+
+        reg[0:1] exp_resp1, exp_resp2;
+        reg [0:63] work;
 
         begin
-            //$display("%0d - %0d", x1, x2);
-            //$display("%0d", x1 >> x2);
             totalTests = totalTests + 2;
             resetAll;
             $display("Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
@@ -628,11 +535,95 @@ always
             putOnWire(wire1, x12, 0);
             putOnWire(wire2, x22, 0);
             waitForResp;
-            test(resolve(x11, x12, cmd1), wire1, 1);
+
+            result = 1;
+            checker(resolve(x11, x12, cmd1), wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
             waitForResp;
-            test(resolve(x21, x22, cmd2), wire2, 1);
+            checker(resolve(x21, x22, cmd2), wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+
+            if (result == 0)
+                failedTests = failedTests + 1;
+            else
+                passedTests = passedTests + 1;
+            $display();
         end
     endtask
+
+    function integer mostSigBit(input n);
+        reg[0:31] n;
+        integer bitpos;
+        begin
+            bitpos = 0;
+            while( n != 0 ) begin
+                bitpos = bitpos + 1;
+                n = n >> 1;
+            end
+        mostSigBit = bitpos;
+        end
+    endfunction
+
+    function integer leastSigBit(input n);
+        reg[0:31] n;
+        integer bitpos;
+        begin
+            bitpos = 0;
+            while( n != 0 ) begin
+                bitpos = bitpos + 1;
+                n = n << 1;
+            end
+        leastSigBit = (33 - bitpos);
+        end
+    endfunction
+
+
+    function reg[0:1] getExpResp(input x1, x2, cmd);
+        reg [0:31] x1, x2;
+        reg [0:3] cmd;
+        reg [0:63] work;
+        reg [0:31] max;
+        integer bitpos;
+
+        begin
+            case (cmd)
+                1:begin
+                    max = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
+                    work = x1 + x2;
+                    if (work > max)
+                        getExpResp = 2;
+                    else
+                        getExpResp = 1;
+                end
+                2:begin
+                    if (x2 > x1)
+                        getExpResp = 2;
+                    else
+                        getExpResp = 1;
+                end
+                5:begin
+                    bitpos = mostSigBit(x1);
+                    if (x2 > (32 - bitpos) && x2 != 0 && x1 != 0)
+                        getExpResp = 2;
+                    else
+                        getExpResp = 1;
+                end
+                6:begin
+                    bitpos = leastSigBit(x1);
+                    if (x2 >= bitpos && x2 != 0 && x1 != 0)
+                        getExpResp = 2;
+                    else
+                        getExpResp = 1;
+                end
+                default:begin
+                    getExpResp = 2;
+                end
+            endcase
+        end
+    endfunction
 
     function reg[0:31] resolve(input x1, x2, cmd);
         reg [0:31] x1, x2;
@@ -697,37 +688,24 @@ always
         reg [0:31] data1, data2;
         reg [0:3]  cmd;
         begin
-            case (inpWire)
-                1:begin
-                    req1_cmd_in = cmd;
-                    req1_data_in = data1;
-                    #200;
-                    req1_cmd_in = 0;
-                    req1_data_in = data2;
-                end
-                2:begin
-                    req2_cmd_in = cmd;
-                    req2_data_in = data1;
-                    #200;
-                    req2_cmd_in = 0;
-                    req2_data_in = data2;
-                end
-                3:begin
-                    req3_cmd_in = cmd;
-                    req3_data_in = data1;
-                    #200;
-                    req3_cmd_in = 0;
-                    req3_data_in = data2;
-                end
-                4:begin
-                    req4_cmd_in = cmd;
-                    req4_data_in = data1;
-                    #200;
-                    req4_cmd_in = 0;
-                    req4_data_in = data2;
-                end
-            endcase
+            putOnWire(inpWire, data1, cmd);
+            #200;
+            putOnWire(inpWire, data2, 0);
         end
     endtask
 
-    endmodule //  test_calc1_tb
+    task put4OnWire;
+        input inpWire1, inpWire2, data11, data12, data21, data22, cmd1, cmd2;
+        integer inpWire1, inpWire2;
+        reg [0:31] data11, data12, data21, data22;
+        reg [0:3]  cmd1, cmd2;
+        begin
+            putOnWire(inpWire1, data11, cmd1);
+            putOnWire(inpWire2, data21, cmd2);
+            #200;
+            putOnWire(inpWire1, data12, 0);
+            putOnWire(inpWire2, data22, 0);
+        end
+    endtask
+
+    endmodule
