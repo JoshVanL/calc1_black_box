@@ -22,12 +22,16 @@ reg [0:31] out_dat;
 integer i, j, k, l;
 reg [0:31] a, b, c, d;
 
+reg[256*8:0] string;
+
 reg passed;
 
 calc1 DUV(out_data1, out_data2, out_data3, out_data4, out_resp1, out_resp2, out_resp3, out_resp4, c_clk, req1_cmd_in, req1_data_in, req2_cmd_in, req2_data_in, req3_cmd_in, req3_data_in, req4_cmd_in, req4_data_in, reset);
 
 
 always #100 c_clk = ~c_clk;
+
+integer file;
 
 initial
 begin
@@ -45,6 +49,7 @@ begin
     passedTests = 0;
     failedTests = 0;
 
+    file = $fopen("calc1_black_box/results", "w");
 
     testAdd;
     testSub;
@@ -59,12 +64,14 @@ begin
 
     finish;
 
+    $fclose(file);
+
     $stop;
 end
 
 task testAdd;
     begin
-        $display("\n --- Testing adding operator.. ---\n");
+        print(file, "\n --- Testing adding operator ---\n");
 
         a = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
         b = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
@@ -181,12 +188,8 @@ task testAdd;
         d = 32'b0000_0000_0000_0000_0001_0000_0000_0000;
         for (j=1; j <= 2; j = j + 1) begin
             for (i=1; i <= 2; i = i + 1) begin
-                $display("%b", b);
-                $display("%b", d);
                 driver(a, (b + d), `ADD, c, "Bad bits in conjunction");
                 d = d * 2;
-                $display("%b", b);
-                $display("%b", d);
                 driver(a, (b + d), `ADD, c, "Bad bits in conjunction");
                 b = b * 2;
                 d = 32'b0000_0000_0000_0000_0001_0000_0000_0000;
@@ -199,7 +202,8 @@ task testAdd;
         b = 32'b0000_0000_0000_0000_0010_0000_0000_0000;
         c = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         for (i=1; i < 32; i = i + 1) begin
-            $display("Add in 14 + %0d position", i);
+            $sformat(string, "Add in 14 + %0d position", i);
+            print(file, string);
             driver(a, (b + c), `ADD, 1, "Add in 14 + other position");
             driver(a, (b + c), `ADD, 3, "Add in 14 + other position");
             c = c * 2;
@@ -214,7 +218,8 @@ task testAdd;
         b = 32'b0000_0000_0000_0000_0001_0000_0000_0000;
         c = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         for (i=1; i < 32; i = i + 1) begin
-            $display("Add in 13 + %0d position", i);
+            $sformat(string, "Add in 13 + %0d position", i);
+            print(file, string);
             driver(a, (b + c), `ADD, 1, "Add in 13 + other position");
             driver(a, (b + c), `ADD, 3, "Add in 13 + other position");
             c = c * 2;
@@ -230,7 +235,7 @@ endtask
 
 task testSub;
     begin
-        $display("\n --- Testing subtracting operator.. ---\n");
+        print(file, "\n --- Testing subtracting operator ---\n");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0001_0011_0010_0000_0000_0001;
@@ -304,7 +309,7 @@ endtask
 task testLeft;
     begin
 
-        $display("\n --- Testing shift left operator.. ---\n");
+        print(file, "\n --- Testing shift left operator ---\n");
 
         a = 32'b0000_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
@@ -401,7 +406,7 @@ endtask
 task testRight;
     begin
 
-        $display("\n --- Testing shift right operator.. --- \n");
+        print(file, "\n --- Testing shift right operator --- \n");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
@@ -471,7 +476,7 @@ endtask
 
 task testWrong;
     begin
-        $display("\n --- Testing invalid command.. ---\n");
+        print(file, "\n --- Testing invalid command ---\n");
 
         a = $urandom% (2**31);
         b = $urandom% (2**31);
@@ -483,7 +488,7 @@ endtask
 
 task testParallel2;
     begin
-        $display("\n --- Testing 2 operators in parallel.. ---\n");
+        print(file, "\n --- Testing 2 operators in parallel ---\n");
 
         // Unique combination of 2 out of 4 wires
         //for (i = 1; i < 4; i = i + 1) begin
@@ -528,7 +533,7 @@ endtask
 
 task testParallel3;
     begin
-        $display("\n --- Testing 3 operators in parallel.. ---\n");
+        print(file, "\n --- Testing 3 operators in parallel ---\n");
 
         // Unique combination of 3 out of 4 wires
         // {{1, 2, 3}, {1, 2, 4}, {1, 3, 4}, {2, 3, 4}}
@@ -566,7 +571,7 @@ endtask
 
 task testParallel4;
     begin
-        $display("\n --- Testing 4 operators in parallel.. ---\n");
+        print(file, "\n --- Testing 4 operators in parallel ---\n");
 
         // Unique combination of 4 out of 4 wires
         // {{1, 2, 3, 4}}
@@ -599,7 +604,8 @@ task waitForResp;
     fork : f
         begin
             #4000
-            $display("%0t : timeout on all response wires", $time);
+            $sformat(string, "%0t : timeout on all response wires", $time);
+            print(file, string);
             resp_wire = 0;
             resp = 0;
             out_dat = 0;
@@ -673,27 +679,30 @@ task checker;
     integer exp_resp_wire;
     reg[0:1] exp_resp;
 
-
     reg fail;
     begin
-        $display("responce: %0d - out_data: %b", resp, out_dat);
+        $sformat(string, "responce: %0d - out_data: %b", resp, out_dat);
+        print(file, string);
         fail = 0;
 
         if (resp_wire != exp_resp_wire)
         begin
-            $display("got response from an unexpected wire. exp=%0d got=%0d", exp_resp_wire, resp_wire);
+            $sformat(string, "got response from an unexpected wire. exp=%0d got=%0d", exp_resp_wire, resp_wire);
+            print(file, string);
             fail = 1;
         end
 
         if ( resp != exp_resp )
         begin
-            $display("response wire from %0d got unexpected response. exp=%0d got=%0d", resp_wire, exp_resp, resp);
+            $sformat(string, "response wire from %0d got unexpected response. exp=%0d got=%0d", resp_wire, exp_resp, resp);
+            print(file, string);
             fail = 1;
         end
 
         if ( exp != out_dat )
         begin
-            $display("got unexpected result from operator. exp=%0d got=%0d (diff: %0d)  r(%0d)", exp, out_dat, $signed(exp - out_dat), resp_wire);
+            $sformat(string, "got unexpected result from operator. exp=%0d got=%0d (diff: %0d)  r(%0d)", exp, out_dat, $signed(exp - out_dat), resp_wire);
+            print(file, string);
             fail = 1;
         end
 
@@ -707,7 +716,8 @@ endtask
 
 task finish;
     begin
-        $display("Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d", totalTests, passedTests, failedTests);
+        $sformat(string, "Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d", totalTests, passedTests, failedTests);
+        print(file, string);
     end
 endtask
 
@@ -721,27 +731,37 @@ task driver;
 
     reg[0:1] exp_resp;
     reg [0:63] work;
+    reg [0:31] res;
 
     begin
         totalTests = totalTests + 1;
-        $display("Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
+        $sformat(string, "Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
+        print(file, string);
 
         resetAll;
         drive2data(inpWire, x1, x2, cmd);
         waitForResp;
 
         exp_resp = getExpResp(x1, x2, cmd);
-        checker(resolve(x1, x2, cmd), inpWire, exp_resp);
+
+        res = resolve(x1, x2, cmd);
+        $sformat(string, "resolve: %0d (%0d) %0d = %0d", x1, cmd, x2, res);
+        print(file, string);
+
+        checker(res, inpWire, exp_resp);
 
         if (passed == 1 ) begin
             passedTests = passedTests + 1;
-            $display("Test %0d Passed.", totalTests);
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
         end
         else begin
-            $display("Test %0d Failed.", totalTests);
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
             failedTests = failedTests + 1;
         end
-        $display();
+        string = "";
+        print(file, string);
     end
 endtask
 
@@ -762,7 +782,8 @@ task driver2;
     begin
         totalTests = totalTests + 1;
         resetAll;
-        $display("Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
+        $sformat(string, "Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
+        print(file, string);
         drive4data(wire1, wire2, x11, x12, x21, x22, cmd1, cmd2);
         waitForResp;
 
@@ -781,13 +802,16 @@ task driver2;
 
         if (result == 0) begin
             failedTests = failedTests + 1;
-            $display("Test %0d Failed.", totalTests);
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
         end
         else begin
             passedTests = passedTests + 1;
-            $display("Test %0d Passed.", totalTests);
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
         end
-        $display();
+        string = "";
+        print(file, string);
     end
 endtask
 
@@ -806,7 +830,8 @@ task driver3;
     begin
         totalTests = totalTests + 1;
         resetAll;
-        $display("Test %0d - %0s  r(%0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3);
+        $sformat(string, "Test %0d - %0s  r(%0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3);
+        print(file, string);
         drive6data(wire1, wire2, wire3, x11, x12, x21, x22, x31, x32, cmd1, cmd2, cmd3);
         waitForResp;
 
@@ -831,13 +856,16 @@ task driver3;
 
         if (result == 0) begin
             failedTests = failedTests + 1;
-            $display("Test %0d Failed.", totalTests);
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
         end
         else begin
             passedTests = passedTests + 1;
-            $display("Test %0d Passed.", totalTests);
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
         end
-        $display();
+        string = "";
+        print(file, string);
     end
 endtask
 
@@ -856,7 +884,8 @@ task driver4;
     begin
         totalTests = totalTests + 1;
         resetAll;
-        $display("Test %0d - %0s  r(%0d, %0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3, wire4);
+        $sformat(string, "Test %0d - %0s  r(%0d, %0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3, wire4);
+        print(file, string);
         drive8data(wire1, wire2, wire3, wire4, x11, x12, x21, x22, x31, x32, x41, x42, cmd1, cmd2, cmd3, cmd4);
         waitForResp;
 
@@ -887,13 +916,16 @@ task driver4;
 
         if (result == 0) begin
             failedTests = failedTests + 1;
-            $display("Test %0d Failed.", totalTests);
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
         end
         else begin
             passedTests = passedTests + 1;
-            $display("Test %0d Passed.", totalTests);
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
         end
-        $display();
+        string = "";
+        print(file, string);
     end
 endtask
 function integer mostSigBit(input n);
@@ -991,7 +1023,6 @@ function reg[0:31] resolve(input x1, x2, cmd);
                 resolve = 0;
             end
         endcase
-        $display("resolve: %0d (%0d) %0d = %0d", x1, cmd, x2, resolve);
     end
 endfunction
 
@@ -1086,6 +1117,20 @@ task drive8data;
         putOnWire(inpWire4, data42, 0);
     end
 endtask
+
+
+task print;
+    input outFile, outString;
+
+    reg[256*8:0] outString;
+    integer outFile;
+
+    begin
+        $display("%0s", outString);
+        $fwrite(file, "%0s\n", outString);
+    end
+endtask
+
 
 always
     @ (reset or req1_cmd_in or req1_data_in or req2_cmd_in or req2_data_in or req3_cmd_in or req3_data_in or req4_cmd_in or req4_data_in, out_resp1, out_resp2, out_resp3, out_resp4, resp, resp_wire) begin
