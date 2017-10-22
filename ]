@@ -46,16 +46,16 @@ begin
     failedTests = 0;
 
 
-    testAdd;
-    testSub;
-    testLeft;
-    testRight;
+    //testAdd;
+    //testSub;
+    //testLeft;
+    //testRight;
 
-    testWrong;
+    //testWrong;
 
-    testParallel2;
-    testParallel3;
-    testParallel4;
+    //testParallel2;
+    //testParallel3;
+    //testParallel4;
 
     finish;
 
@@ -235,42 +235,42 @@ task testSub;
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0001_0011_0010_0000_0000_0001;
         for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, b, `SUB, i, "normal");
+            driver(a, b, 2, i, "normal");
         end
 
         a = 32'b0001_1111_0000_0000_0000_0001_1111_1111;
         b = 32'b0000_0000_0000_1000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `SUB, i, "carry case");
+            driver(a, b, 2, i, "carry case");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             b = $urandom% (2**31);
-            driver(a, b, `SUB, i, "0 - n");
+            driver(a, b, 2, i, "0 - n");
         end
 
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
             a = $urandom% (2**31);
-            driver(a, b, `SUB, i, "n - 0");
+            driver(a, b, 2, i, "n - 0");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `SUB, i, "0 - 0");
+            driver(a, b, 2, i, "0 - 0");
         end
 
         a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
         b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `SUB, i, "Underflow");
+            driver(a, b, 2, i, "Underflow");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
@@ -278,24 +278,27 @@ task testSub;
         c = 1;
         for (j=1; j <= 2; j = j + 1) begin
             for (i=0; i < 31; i = i + 1) begin
-                driver(a, b, `SUB, c, "Test first data input bits");
+                driver(a, b, 2, c, "Test first data input bits");
                 a = a * 2;
             end
             a = 1;
             c = 3;
         end
 
+
         a = 32'b0001_0100_1111_1111_1111_1111_1100_1101;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         c = 1;
         for (j=1; j <= 2; j = j + 1) begin
             for (i=0; i < 31; i = i + 1) begin
-                driver(a, b, `SUB, c, "Test second data input bits");
+                driver(a, b, 2, c, "Test second data input bits");
                 b = b * 2;
             end
             c = 3;
             b = 1;
         end
+
+        // 5, 6 13, 14
 
     end
 endtask
@@ -309,91 +312,36 @@ task testLeft;
         a = 32'b0000_0100_1111_1111_1111_1111_1111_1101;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
         for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, b, `LEFT, i, "normal");
+            driver(a, b, 5, i, "normal");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             b = $urandom% (2**31);
-            driver(a, b, `LEFT, i, "0 << n");
+            driver(a, b, 5, i, "0 << n");
         end
 
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
             a = $urandom% (2**31);
-            driver(a, b, `LEFT, i, "n << 0");
+            driver(a, b, 5, i, "n << 0");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `LEFT, i, "0 << 0");
+            driver(a, b, 5, i, "0 << 0");
         end
 
         a = 32'b1111_0000_1111_0000_1111_0000_1111_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0010_0010;
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `LEFT, i, "Overflow");
+            driver(a, b, 5, i, "Overflow");
         end
-
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0101;
-        for (i = 1; i <= 4; i = i + 1) begin
-            for (j=0; j < 31; j = j + 1) begin
-                driver(a, b, `LEFT, i, "Test first data input bits -- Left");
-                a = a * 2;
-            end
-            a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        end
-
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0101;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        for (i = 1; i <= 4; i = i + 1) begin
-            for (j=0; j < 31; j = j + 1) begin
-                driver(a, b, `LEFT, i, "Test second data input bits -- Left");
-                b = b * 2;
-            end
-            b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        end
-
-        //For second data input drive 16 bit position off by 1
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0111;
-        b = 32'b0000_0000_0000_0000_0000_0000_0001_0000;
-        for (i = 1; i <= 4; i = i + 1) begin
-            if (i != 2)
-                driver(a, b, `LEFT, i, "Shift left - 5th bit");
-        end
-
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0111;
-        b = 32'b0000_0000_0000_0000_0000_0000_0001_0000;
-        c = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        for (j = 0; j < 32; j = j + 1) begin
-            for (i = 1; i <= 4; i = i + 1) begin
-                if (i != 2)
-                    driver(a, (b + c), `LEFT, i, "Shift left - 5th bit and smaller");
-            end
-            c = c * 2;
-        end
-
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0111;
-        b = 32'b0000_0000_0000_0000_0000_0000_0001_0110;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 6");
-        b = 32'b0000_0000_0000_0000_0000_0000_0001_1100;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 12");
-        b = 32'b0000_0000_0000_0000_0000_0000_0011_0000;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 32 + 0");
-        b = 32'b0000_0000_0000_0000_0000_0000_0011_0001;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 32 + 1");
-        b = 32'b0000_0000_0000_0000_0000_0000_0011_0010;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 32 + 2");
-        b = 32'b0000_0000_0000_0000_0000_0000_0101_0010;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 64 + 2");
-        b = 32'b0000_0000_0000_0000_0000_0001_0101_0010;
-        driver(a, b, `LEFT, 1, "Shift left - 16 + 64  + 256 + 2");
 
     end
 endtask
@@ -406,66 +354,47 @@ task testRight;
         a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
         for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, b, `RIGHT, i, "normal");
+            driver(a, b, 6, i, "normal");
         end
 
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
         for (i = 1; i <= 4; i = i + 1) begin
             a = $urandom% (2**31);
-            driver(a, b, `RIGHT, i, "n >> 1");
+            driver(a, b, 6, i, "n >> 1");
         end
 
         a = 32'b1111_1111_0000_1111_0000_1111_0000_1111;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_1010;
         for (i = 1; i <= 4; i = i + 1) begin
-            driver(a, (b+c), `RIGHT, i, "carry case");
+            driver(a, (b+c), 6, i, "carry case");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         for (i = 1; i <= 4; i = i + 1) begin
             b = $urandom% (2**31);
-            driver(a, b, `RIGHT, i, "0 >> n");
+            driver(a, b, 6, i, "0 >> n");
         end
 
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1) begin
             a = $urandom% (2**31);
-            driver(a, b, `RIGHT, i, "n >> 0");
+            driver(a, b, 6, i, "n >> 0");
         end
 
         a = 32'b0000_0000_0000_0000_0000_0000_0000_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0000; //Add by zero always returns 0
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `RIGHT, i, "0 >> 0");
+            driver(a, b, 6, i, "0 >> 0");
         end
 
         a = 32'b0000_0000_0101_0100_0110_0000_1110_0000;
         b = 32'b1111_0000_0000_0000_0000_0000_0000_0000; //Overflow
         for (i = 1; i <= 4; i = i + 1)
         begin
-            driver(a, b, `RIGHT, i, "Underflow");
+            driver(a, b, 6, i, "Underflow");
         end
 
-        a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0101;
-        for (i = 1; i <= 4; i = i + 1) begin
-            for (j=0; j < 31; j = j + 1) begin
-                driver(a, b, `RIGHT, i, "Test first data input bits -- Right");
-                a = a * 2;
-            end
-            a = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        end
-
-        a = 32'b1111_1111_1111_1111_1111_1111_1111_1000;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        for (i = 1; i <= 4; i = i + 1) begin
-            for (j=0; j < 31; j = j + 1) begin
-                driver(a, b, `RIGHT, i, "Test second data input bits -- Right");
-                b = b * 2;
-            end
-            b = 32'b0000_0000_0000_0000_0000_0000_0000_0001;
-        end
     end
 endtask
 
@@ -493,7 +422,7 @@ task testParallel2;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
         for (i = 1; i < 4; i = i + 1) begin
             for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `ADD, i, a, b, 1, j, "parallel command test - add");
+                driver2(a, b, 1, i, a, b, 1, j, "parallel command test - add");
             end
         end
 
@@ -502,7 +431,7 @@ task testParallel2;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
         for (i = 1; i < 4; i = i + 1) begin
             for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `SUB, i, a, b, 2, j, "parallel command test - sub");
+                driver2(a, b, 2, i, a, b, 2, j, "parallel command test - sub");
             end
         end
 
@@ -510,7 +439,7 @@ task testParallel2;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
         for (i = 1; i < 4; i = i + 1) begin
             for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `LEFT, i, a, b, 5, j, "parallel command test - left");
+                driver2(a, b, 5, i, a, b, 5, j, "parallel command test - left");
             end
         end
 
@@ -519,7 +448,7 @@ task testParallel2;
         for (i = 1; i < 4; i = i + 1) begin
             for(j = i + 1; j <= 4; j = j+1) begin
                 a = $urandom% (2**31);
-                driver2(a, b, `RIGHT, i, a, b, 6, j, "parallel command test - right");
+                driver2(a, b, 6, i, a, b, 6, j, "parallel command test - right");
             end
         end
 
@@ -535,32 +464,32 @@ task testParallel3;
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 3, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 4, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 2, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
+        driver3(a, b, 1, 1, a, b, 1, 2, a, b, 1, 3, "parallel 3 command test - add");
+        driver3(a, b, 1, 1, a, b, 1, 2, a, b, 1, 4, "parallel 3 command test - add");
+        driver3(a, b, 1, 1, a, b, 1, 3, a, b, 1, 4, "parallel 3 command test - add");
+        driver3(a, b, 1, 2, a, b, 1, 3, a, b, 1, 4, "parallel 3 command test - add");
 
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 4, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 1, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
+        driver3(a, b, 2, 1, a, b, 2, 2, a, b, 2, 3, "parallel 3 command test - sub");
+        driver3(a, b, 2, 1, a, b, 2, 2, a, b, 2, 4, "parallel 3 command test - sub");
+        driver3(a, b, 2, 1, a, b, 2, 3, a, b, 2, 4, "parallel 3 command test - sub");
+        driver3(a, b, 2, 2, a, b, 2, 3, a, b, 2, 4, "parallel 3 command test - sub");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 4, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
+        driver3(a, b, 5, 1, a, b, 5, 2, a, b, 5, 3, "parallel 3 command test - left");
+        driver3(a, b, 5, 1, a, b, 5, 2, a, b, 5, 4, "parallel 3 command test - left");
+        driver3(a, b, 5, 1, a, b, 5, 3, a, b, 5, 4, "parallel 3 command test - left");
+        driver3(a, b, 5, 2, a, b, 5, 3, a, b, 5, 4, "parallel 3 command test - left");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        driver3(a, b, 6, 1, a, b, 6, 2, a, b, 6, 3, "parallel 3 command test - right");
+        driver3(a, b, 6, 1, a, b, 6, 2, a, b, 6, 4, "parallel 3 command test - right");
+        driver3(a, b, 6, 1, a, b, 6, 3, a, b, 6, 4, "parallel 3 command test - right");
+        driver3(a, b, 6, 2, a, b, 6, 3, a, b, 6, 4, "parallel 3 command test - right");
     end
 endtask
 
@@ -574,24 +503,24 @@ task testParallel4;
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
         //a = ;
-        driver4($urandom% (2**31), $urandom% (2**31), `ADD, 1, $urandom% (2**31), $urandom% (2**31), `ADD, 2, $urandom% (2**31), $urandom% (2**31), `ADD, 3, $urandom% (2**31), $urandom% (2**31), `ADD, 4, "parallel 4 command test - add");
+        driver4($urandom% (2**31), $urandom% (2**31), 1, 1, $urandom% (2**31), $urandom% (2**31), 1, 2, $urandom% (2**31), $urandom% (2**31), 1, 3, $urandom% (2**31), $urandom% (2**31), 1, 4, "parallel 4 command test - add");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        driver4(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 4 command test - sub");
+        driver4(a, b, 2, 1, a, b, 2, 2, a, b, 2, 3, a, b, 2, 4, "parallel 4 command test - sub");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver4(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 4 command test - left");
+        driver4(a, b, 5, 1, a, b, 5, 2, a, b, 5, 3, a, b, 5, 4, "parallel 4 command test - left");
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
         b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver4(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 4 command test - right");
+        driver4(a, b, 6, 1, a, b, 6, 2, a, b, 6, 3, a, b, 6, 4, "parallel 4 command test - right");
 
-        driver4($urandom% (2**31), $urandom% (2**31), `ADD, 1, $urandom% (2**31), $urandom% (2**31), `ADD, 2, $urandom% (2**31), $urandom% (2**31), `ADD, 3, $urandom% (2**31), $urandom% (2**31), `ADD, 4, "parallel 4 command test - add");
-        driver4($urandom% (2**31), $urandom% (2**31), `SUB, 1, $urandom% (2**31), $urandom% (2**31), `SUB, 2, $urandom% (2**31), $urandom% (2**31), `SUB, 3, $urandom% (2**31), $urandom% (2**31), `SUB, 4, "parallel 4 command test - add");
-        driver4($urandom% (2**31), $urandom% (2**31), `LEFT, 1, $urandom% (2**31), $urandom% (2**31), `LEFT, 2, $urandom% (2**31), $urandom% (2**31), `LEFT, 3, $urandom% (2**31), $urandom% (2**31), `LEFT, 4, "parallel 4 command test - add");
-        driver4($urandom% (2**31), $urandom% (2**31), `RIGHT, 1, $urandom% (2**31), $urandom% (2**31), `RIGHT, 2, $urandom% (2**31), $urandom% (2**31), `RIGHT, 3, $urandom% (2**31), $urandom% (2**31), `RIGHT, 4, "parallel 4 command test - add");
+        driver4($urandom% (2**31), $urandom% (2**31), 1, 1, $urandom% (2**31), $urandom% (2**31), 1, 2, $urandom% (2**31), $urandom% (2**31), 1, 3, $urandom% (2**31), $urandom% (2**31), 1, 4, "parallel 4 command test - add");
+        driver4($urandom% (2**31), $urandom% (2**31), 2, 1, $urandom% (2**31), $urandom% (2**31), 2, 2, $urandom% (2**31), $urandom% (2**31), 2, 3, $urandom% (2**31), $urandom% (2**31), 2, 4, "parallel 4 command test - add");
+        driver4($urandom% (2**31), $urandom% (2**31), 5, 1, $urandom% (2**31), $urandom% (2**31), 5, 2, $urandom% (2**31), $urandom% (2**31), 5, 3, $urandom% (2**31), $urandom% (2**31), 5, 4, "parallel 4 command test - add");
+        driver4($urandom% (2**31), $urandom% (2**31), 6, 1, $urandom% (2**31), $urandom% (2**31), 6, 2, $urandom% (2**31), $urandom% (2**31), 6, 3, $urandom% (2**31), $urandom% (2**31), 6, 4, "parallel 4 command test - add");
     end
 endtask
 
@@ -932,7 +861,7 @@ function reg[0:1] getExpResp(input x1, x2, cmd);
 
     begin
         case (cmd)
-            `ADD:begin
+            1:begin
                 max = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
                 work = x1 + x2;
                 if (work > max)
@@ -940,20 +869,20 @@ function reg[0:1] getExpResp(input x1, x2, cmd);
                 else
                     getExpResp = 1;
             end
-            `SUB:begin
+            2:begin
                 if (x2 > x1)
                     getExpResp = 2;
                 else
                     getExpResp = 1;
             end
-            `LEFT:begin
+            5:begin
                 bitpos = mostSigBit(x1);
                 if (x2 > (32 - bitpos) && x2 != 0 && x1 != 0)
                     getExpResp = 2;
                 else
                     getExpResp = 1;
             end
-            `RIGHT:begin
+            6:begin
                 bitpos = leastSigBit(x1);
                 if (x2 >= bitpos && x2 != 0 && x1 != 0)
                     getExpResp = 2;
@@ -975,16 +904,16 @@ function reg[0:31] resolve(input x1, x2, cmd);
             0:begin
                 resolve = 0;
             end
-            `ADD:begin
+            1:begin
                 resolve = x1 + x2;
             end
-            `SUB:begin
+            2:begin
                 resolve = x1 - x2;
             end
-            `LEFT:begin
+            5:begin
                 resolve =  x1 << x2;
             end
-            `RIGHT:begin
+            6:begin
                 resolve =  x1 >> x2;
             end
             default:begin
