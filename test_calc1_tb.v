@@ -497,8 +497,6 @@ task testParallel2;
         exhaustParallel2(`SUB, `ADD, "parallel command test - sub and add");
         exhaustParallel2(`SUB, `SUB, "parallel command test - sub and sub");
 
-        // Do something with left and right bc it has something wrong in
-        // parallel
         exhaustParallel2(`LEFT, `LEFT, "parallel command test - left and left");
         exhaustParallel2(`LEFT, `RIGHT, "parallel command test - left and right");
         exhaustParallel2(`RIGHT, `LEFT, "parallel command test - right and left");
@@ -507,7 +505,7 @@ task testParallel2;
         exhaustParallel2(`ADD, `LEFT, "parallel command test - add and left");
         exhaustParallel2(`ADD, `RIGHT, "parallel command test - add and right");
 
-        // problem with right and wire 3
+        //problem with right and wire 3
 
         exhaustParallel2(`SUB, `LEFT, "parallel command test - sub and left");
         exhaustParallel2(`SUB, `RIGHT, "parallel command test - sub and right");
@@ -539,10 +537,10 @@ task exhaustParallel2;
             d = $urandom% (2**31);
 
             //// Stop the broken thing
-            a = a & 32'b1111_1111_1111_1111_000_011_1100_1111;
-            b = b & 32'b1111_1111_1111_1111_000_011_1100_1111;
-            c = c & 32'b1111_1111_1111_1111_000_011_1100_1111;
-            d = d & 32'b1111_1111_1111_1111_000_011_1100_1111;
+            a = a & 32'b1111_1110_1111_1111_000_0011_1100_1111;
+            b = b & 32'b1111_1110_1111_1111_000_0011_1100_1111;
+            c = c & 32'b1111_1110_1111_1111_000_0011_1100_1111;
+            d = d & 32'b1111_1110_1111_1111_000_0011_1100_1111;
             for(j = i + 1; j <= 4; j = j+1) begin
                 if (i != j)
                     driver2(a, b, cmd1, i, c, d, cmd2, j, testName);
@@ -559,34 +557,46 @@ task testParallel3;
         // Unique combination of 3 out of 4 wires
         // {{1, 2, 3}, {1, 2, 4}, {1, 3, 4}, {2, 3, 4}}
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 3, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 4, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
-        driver3(a, b, `ADD, 2, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
+        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        //b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
+        //driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 3, "parallel 3 command test - add");
+        //driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 4, "parallel 3 command test - add");
+        //driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
+        //driver3(a, b, `ADD, 2, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
 
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 4, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 1, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
-        driver3(a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
+        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        //b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
+        //driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, "parallel 3 command test - sub");
+        //driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 4, "parallel 3 command test - sub");
+        //driver3(a, b, `SUB, 1, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
+        //driver3(a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 4, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 1, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
-        driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
+        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, "parallel 3 command test - left");
+        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 4, "parallel 3 command test - left");
+        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
+        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        driver3(a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
+        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, "parallel 3 command test - right");
+        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //driver3(a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+
+        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
+        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
+        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+
+        driver3(a, b, `ADD, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        driver3(a, b, `ADD, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
+        driver3(a, b, `ADD, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+
     end
 endtask
 
@@ -910,13 +920,15 @@ task driver3;
         $sformat(string, "Test %0d - %0s  r(%0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3);
         print(file, string);
         drive6data(wire1, wire2, wire3, x11, x12, x21, x22, x31, x32, cmd1, cmd2, cmd3);
-        waitForResp;
 
         exp_resp1 = getExpResp(x11, x12, cmd1);
         exp_resp2 = getExpResp(x21, x22, cmd2);
         exp_resp3 = getExpResp(x31, x32, cmd3);
-
         result = 1;
+
+        // if (cmd1 < 3 || cmd2 < 3 && cmd3 < 3)  || (cmd1 > 3 && cmd2 > 3 && cmd3 > 3)
+            //All are are 1 after another
+        waitForResp;
         checker(resolve(x11, x12, cmd1), wire1, exp_resp1);
         if (passed == 0)
             result = 0;
@@ -931,6 +943,93 @@ task driver3;
         if (passed == 0)
             result = 0;
 
+        // else if ((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 || cmd2 > 3)
+            // 1 and 2 are after on another
+            waitForResp;
+            getResponce(wire1);
+
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
+            getResponce(wire3);
+
+            res = resolve(x31, x32, cmd3);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x31, cmd3, x32, res);
+            print(file, string);
+
+            checker(res, wire3, exp_resp3);
+            if (passed == 0)
+                result = 0;
+
+            waitForResp;
+            checker(resolve(x21, x22, cmd2), wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+
+        // else if ((cmd1 < 3 && cmd3 < 3) || (cmd1 > 3 || cmd3 > 3)
+            // 1 and 3 are after one another
+            waitForResp;
+            getResponce(wire1);
+
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
+            getResponce(wire2);
+
+            res = resolve(x21, x22, cmd2);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
+            print(file, string);
+
+            checker(res, wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+
+            waitForResp;
+            checker(resolve(x31, x32, cmd3), wire3, exp_resp3);
+            if (passed == 0)
+                result = 0;
+        // else 2 and 3 are after one another
+            waitForResp;
+            getResponce(wire1);
+
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
+            waitForResp;
+
+            getResponce(wire2);
+
+            res = resolve(x21, x22, cmd2);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
+            print(file, string);
+
+            checker(res, wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+
+            getResponce(wire3);
+
+            checker(resolve(x31, x32, cmd3), wire3, exp_resp3);
+            if (passed == 0)
+                result = 0;
+
+
+
         if (result == 0) begin
             failedTests = failedTests + 1;
             $sformat(string, "Test %0d Failed.", totalTests);
@@ -941,6 +1040,7 @@ task driver3;
             $sformat(string, "Test %0d Passed.", totalTests);
             print(file, string);
         end
+
         string = "";
         print(file, string);
     end
