@@ -7,6 +7,8 @@
 
 module test_calc1_tb;
 
+// ONLY ONE SUB/ADD OR SHIFT AT A TIME!!!!!!!!!!!!!!!!!!!!!!!!!
+
 wire [0:31]   out_data1, out_data2, out_data3, out_data4;
 wire [0:1]    out_resp1, out_resp2, out_resp3, out_resp4;
 
@@ -16,7 +18,7 @@ reg [0:31]    req1_data_in, req2_data_in, req3_data_in, req4_data_in;
 reg [1:7]     reset;
 
 integer totalTests, passedTests, failedTests;
-integer resp_wire;
+integer resp_wire, resp_wire2;
 reg [0:1] resp;
 reg [0:31] out_dat;
 integer i, j, k, l;
@@ -51,16 +53,16 @@ begin
 
     file = $fopen("calc1_black_box/results", "w");
 
-    testAdd;
-    testSub;
-    testLeft;
-    testRight;
+    //testAdd;
+    //testSub;
+    //testLeft;
+    //testRight;
 
-    testWrong;
+    //testWrong;
 
-    testParallel2;
+    //testParallel2;
     testParallel3;
-    testParallel4;
+    //testParallel4;
 
     finish;
 
@@ -490,46 +492,65 @@ task testParallel2;
     begin
         print(file, "\n --- Testing 2 operators in parallel ---\n");
 
+        exhaustParallel2(`ADD, `ADD, "parallel command test - add and add");
+        exhaustParallel2(`ADD, `SUB, "parallel command test - add and sub");
+        exhaustParallel2(`SUB, `ADD, "parallel command test - sub and add");
+        exhaustParallel2(`SUB, `SUB, "parallel command test - sub and sub");
+
+        // Do something with left and right bc it has something wrong in
+        // parallel
+        exhaustParallel2(`LEFT, `LEFT, "parallel command test - left and left");
+        exhaustParallel2(`LEFT, `RIGHT, "parallel command test - left and right");
+        exhaustParallel2(`RIGHT, `LEFT, "parallel command test - right and left");
+        exhaustParallel2(`RIGHT, `RIGHT, "parallel command test - right and right");
+
+        exhaustParallel2(`ADD, `LEFT, "parallel command test - add and left");
+        exhaustParallel2(`ADD, `RIGHT, "parallel command test - add and right");
+
+        // problem with right and wire 3
+
+        exhaustParallel2(`SUB, `LEFT, "parallel command test - sub and left");
+        exhaustParallel2(`SUB, `RIGHT, "parallel command test - sub and right");
+
+        exhaustParallel2(`LEFT, `SUB, "parallel command test - left and sub");
+        exhaustParallel2(`LEFT, `ADD, "parallel command test - left and add");
+
+        exhaustParallel2(`RIGHT, `SUB, "parallel command test - right and sub");
+        exhaustParallel2(`RIGHT, `ADD, "parallel command test - right and add");
+
+    end
+endtask
+
+task exhaustParallel2;
+    input cmd1, cmd2, testName;
+
+    reg[0:3] cmd1, cmd2;
+    reg[80*8:0] testName;
+
+    begin
         // Unique combination of 2 out of 4 wires
         //for (i = 1; i < 4; i = i + 1) begin
         //for(j = i + 1; j <= 4; j = j +1) begin
 
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        for (i = 1; i < 4; i = i + 1) begin
+        for (i = 1; i <= 4; i = i + 1) begin
+            a = $urandom% (2**31);
+            b = $urandom% (2**31);
+            c = $urandom% (2**31);
+            d = $urandom% (2**31);
+
+            //// Stop the broken thing
+            a = a & 32'b1111_1111_1111_1111_000_011_1100_1111;
+            b = b & 32'b1111_1111_1111_1111_000_011_1100_1111;
+            c = c & 32'b1111_1111_1111_1111_000_011_1100_1111;
+            d = d & 32'b1111_1111_1111_1111_000_011_1100_1111;
             for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `ADD, i, a, b, 1, j, "parallel command test - add");
+                if (i != j)
+                    driver2(a, b, cmd1, i, c, d, cmd2, j, testName);
             end
         end
-
-
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0011_1100_0100_0110_0000_0000_0001;
-        for (i = 1; i < 4; i = i + 1) begin
-            for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `SUB, i, a, b, 2, j, "parallel command test - sub");
-            end
-        end
-
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        for (i = 1; i < 4; i = i + 1) begin
-            for(j = i + 1; j <= 4; j = j+1) begin
-                driver2(a, b, `LEFT, i, a, b, 5, j, "parallel command test - left");
-            end
-        end
-
-        a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
-        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        for (i = 1; i < 4; i = i + 1) begin
-            for(j = i + 1; j <= 4; j = j+1) begin
-                a = $urandom% (2**31);
-                driver2(a, b, `RIGHT, i, a, b, 6, j, "parallel command test - right");
-            end
-        end
-
     end
 endtask
+
 
 task testParallel3;
     begin
@@ -616,42 +637,63 @@ task waitForResp;
             @(posedge out_resp1);
             out_dat = out_data1;
             resp = out_resp1;
-            //$display("%0d", out_resp1);
             resp_wire = 1;
-            //$display("%0d - 1", out_data1);
             disable f;
         end
         begin
             // Wait on signal
             @(posedge out_resp2);
             out_dat = out_data2;
-            //$display("%0d", out_resp2);
             resp = out_resp2;
             resp_wire = 2;
-            //$display("%0d - 2", out_data2);
             disable f;
         end
         begin
             // Wait on signal
             @(posedge out_resp3);
             out_dat = out_data3;
-            //$display("%0d", out_resp3);
             resp = out_resp3;
             resp_wire = 3;
-            //$display("%0d - 3", out_data3);
             disable f;
         end
         begin
             // Wait on signal
             @(posedge out_resp4);
             out_dat = out_data4;
-            //$display("%0d", out_resp4);
             resp = out_resp4;
-            //$display("%0d - 4", out_data4);
             resp_wire = 4;
             disable f;
         end
     join
+endtask
+
+task getResponce(input n);
+    integer n;
+
+    begin
+        case (n)
+            1:begin
+                out_dat = out_data1;
+                resp = out_resp1;
+                resp_wire = 1;
+            end
+            2:begin
+                out_dat = out_data2;
+                resp = out_resp2;
+                resp_wire = 2;
+            end
+            3:begin
+                out_dat = out_data3;
+                resp = out_resp3;
+                resp_wire = 3;
+            end
+            4:begin
+                out_dat = out_data4;
+                resp = out_resp4;
+                resp_wire = 4;
+            end
+        endcase
+    end
 endtask
 
 task resetAll;
@@ -681,7 +723,7 @@ task checker;
 
     reg fail;
     begin
-        $sformat(string, "responce: %0d - out_data: %b", resp, out_dat);
+        $sformat(string, "r(%0d) responce: %0d - out_data: %b", resp_wire, resp, out_dat);
         print(file, string);
         fail = 0;
 
@@ -694,14 +736,14 @@ task checker;
 
         if ( resp != exp_resp )
         begin
-            $sformat(string, "response wire from %0d got unexpected response. exp=%0d got=%0d", resp_wire, exp_resp, resp);
+            $sformat(string, "r(%0d) got unexpected response. exp=%0d got=%0d", resp_wire, exp_resp, resp);
             print(file, string);
             fail = 1;
         end
 
         if ( exp != out_dat )
         begin
-            $sformat(string, "got unexpected result from operator. exp=%0d got=%0d (diff: %0d)  r(%0d)", exp, out_dat, $signed(exp - out_dat), resp_wire);
+            $sformat(string, "r(%0d) got unexpected result from operator. exp=%0d got=%0d (diff: %0d)", resp_wire, exp, out_dat, $signed(exp - out_dat));
             print(file, string);
             fail = 1;
         end
@@ -778,27 +820,61 @@ task driver2;
 
     reg[0:1] exp_resp1, exp_resp2;
     reg [0:63] work;
+    reg [0:31] res;
 
     begin
         totalTests = totalTests + 1;
         resetAll;
         $sformat(string, "Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
         print(file, string);
-        drive4data(wire1, wire2, x11, x12, x21, x22, cmd1, cmd2);
-        waitForResp;
 
         exp_resp1 = getExpResp(x11, x12, cmd1);
         exp_resp2 = getExpResp(x21, x22, cmd2);
 
-        result = 1;
-        checker(resolve(x11, x12, cmd1), wire1, exp_resp1);
-        if (passed == 0)
-            result = 0;
+        drive4data(wire1, wire2, x11, x12, x21, x22, cmd1, cmd2);
 
-        waitForResp;
-        checker(resolve(x21, x22, cmd2), wire2, exp_resp2);
-        if (passed == 0)
-            result = 0;
+        result = 1;
+        if((cmd1 < 3 && cmd2 > 3) || (cmd1 > 3 && cmd2 < 3)) begin
+            waitForResp;
+            getResponce(wire1);
+
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
+            getResponce(wire2);
+
+            res = resolve(x21, x22, cmd2);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
+            print(file, string);
+
+            checker(res, wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+        end
+        else begin
+            waitForResp;
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
+
+            waitForResp;
+            res = resolve(x21, x22, cmd2);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
+            print(file, string);
+
+            checker(res, wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+        end
 
         if (result == 0) begin
             failedTests = failedTests + 1;
@@ -810,6 +886,7 @@ task driver2;
             $sformat(string, "Test %0d Passed.", totalTests);
             print(file, string);
         end
+
         string = "";
         print(file, string);
     end
