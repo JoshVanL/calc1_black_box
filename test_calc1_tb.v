@@ -7,8 +7,6 @@
 
 module test_calc1_tb;
 
-// ONLY ONE SUB/ADD OR SHIFT AT A TIME!!!!!!!!!!!!!!!!!!!!!!!!!
-
 wire [0:31]   out_data1, out_data2, out_data3, out_data4;
 wire [0:1]    out_resp1, out_resp2, out_resp3, out_resp4;
 
@@ -51,19 +49,30 @@ begin
     passedTests = 0;
     failedTests = 0;
 
+    //Output file with results
     file = $fopen("calc1_black_box/results", "w");
 
-    //testAdd;
-    //testSub;
-    //testLeft;
-    //testRight;
+    //Task for testing single addition
+    testAdd;
 
-    //testWrong;
+    //Task for testing single subtraction
+    testSub;
 
-    //testParallel2;
+    //Task for testing single left shift
+    testLeft;
+
+    //Task for testing single right shift
+    testRight;
+
+    //Invalid command test
+    testWrong;
+
+    //Tasks for testing commands in parallel
+    testParallel2;
     testParallel3;
-    //testParallel4;
+    testParallel4;
 
+    //Output final resultd
     finish;
 
     $fclose(file);
@@ -71,6 +80,7 @@ begin
     $stop;
 end
 
+//Task for testing single addition
 task testAdd;
     begin
         print(file, "\n --- Testing adding operator ---\n");
@@ -235,6 +245,7 @@ task testAdd;
     end
 endtask
 
+//Task for testing single subtraction
 task testSub;
     begin
         print(file, "\n --- Testing subtracting operator ---\n");
@@ -307,7 +318,7 @@ task testSub;
     end
 endtask
 
-
+//Task for testing single left shift
 task testLeft;
     begin
 
@@ -405,6 +416,7 @@ task testLeft;
     end
 endtask
 
+//Task for testing single right shift
 task testRight;
     begin
 
@@ -476,6 +488,7 @@ task testRight;
     end
 endtask
 
+//Invalid command test
 task testWrong;
     begin
         print(file, "\n --- Testing invalid command ---\n");
@@ -488,6 +501,7 @@ task testWrong;
     end
 endtask
 
+//Test 2 commands in parallel
 task testParallel2;
     begin
         print(file, "\n --- Testing 2 operators in parallel ---\n");
@@ -519,6 +533,7 @@ task testParallel2;
     end
 endtask
 
+//Take inputs and test every input wires
 task exhaustParallel2;
     input cmd1, cmd2, testName;
 
@@ -549,7 +564,7 @@ task exhaustParallel2;
     end
 endtask
 
-
+// Test 3 commands in parallel
 task testParallel3;
     begin
         print(file, "\n --- Testing 3 operators in parallel ---\n");
@@ -557,49 +572,49 @@ task testParallel3;
         // Unique combination of 3 out of 4 wires
         // {{1, 2, 3}, {1, 2, 4}, {1, 3, 4}, {2, 3, 4}}
 
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        //b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
-        //driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 3, "parallel 3 command test - add");
-        //driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 4, "parallel 3 command test - add");
-        //driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
-        //driver3(a, b, `ADD, 2, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
+        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 3, "parallel 3 command test - add");
+        driver3(a, b, `ADD, 1, a, b, `ADD, 2, a, b, `ADD, 4, "parallel 3 command test - add");
+        driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
+        driver3(a, b, `ADD, 2, a, b, `ADD, 3, a, b, `ADD, 4, "parallel 3 command test - add");
 
 
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        //b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
-        //driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, "parallel 3 command test - sub");
-        //driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 4, "parallel 3 command test - sub");
-        //driver3(a, b, `SUB, 1, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
-        //driver3(a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
+        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 3, "parallel 3 command test - sub");
+        driver3(a, b, `SUB, 1, a, b, `SUB, 2, a, b, `SUB, 4, "parallel 3 command test - sub");
+        driver3(a, b, `SUB, 1, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
+        driver3(a, b, `SUB, 2, a, b, `SUB, 3, a, b, `SUB, 4, "parallel 3 command test - sub");
 
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, "parallel 3 command test - left");
-        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 4, "parallel 3 command test - left");
-        //driver3(a, b, `LEFT, 1, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
-        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 3, "parallel 3 command test - left");
+        driver3(a, b, `LEFT, 1, a, b, `LEFT, 2, a, b, `LEFT, 4, "parallel 3 command test - left");
+        driver3(a, b, `LEFT, 1, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
+        driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `LEFT, 4, "parallel 3 command test - left");
 
-        //a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
-        //b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
-        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        //driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        //driver3(a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        a = 32'b0001_0100_1111_1111_1111_1111_1111_0000;
+        b = 32'b0000_0000_0000_0000_0000_0000_0000_0011;
+        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 3, "parallel 3 command test - right");
+        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 2, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        driver3(a, b, `RIGHT, 1, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        driver3(a, b, `RIGHT, 2, a, b, `RIGHT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
 
-        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        //driver3(a, b, `RIGHT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        //driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
+        driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - rlr");
+        driver3(a, b, `RIGHT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - rlr");
+        driver3(a, b, `RIGHT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - rlr");
+        driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - llr");
+        driver3(a, b, `LEFT, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - llr");
+        driver3(a, b, `LEFT, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - llr");
 
-        driver3(a, b, `ADD, 2, a, b, `LEFT, 1, a, b, `RIGHT, 4, "parallel 3 command test - right");
-        driver3(a, b, `ADD, 2, a, b, `LEFT, 1, a, b, `RIGHT, 3, "parallel 3 command test - right");
-        driver3(a, b, `ADD, 2, a, b, `LEFT, 3, a, b, `RIGHT, 4, "parallel 3 command test - right");
-
+        driver3(a, b, `ADD, 1, a, b, `LEFT, 2, a, b, `RIGHT, 3, "parallel 3 command test - alr");
+        driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `RIGHT, 4, "parallel 3 command test - aar");
+        driver3(a, b, `ADD, 1, a, b, `LEFT, 2, a, b, `ADD, 3, "parallel 3 command test - ala");
     end
 endtask
 
+// Test 4 commands in parallel
 task testParallel4;
     begin
         print(file, "\n --- Testing 4 operators in parallel ---\n");
@@ -631,6 +646,8 @@ task testParallel4;
     end
 endtask
 
+//Wait and listen for a response on any of the output resp wires. Once one has
+//changed, update accordingly.
 task waitForResp;
     fork : f
         begin
@@ -677,6 +694,7 @@ task waitForResp;
     join
 endtask
 
+//Get the data from a particular output wire
 task getResponce(input n);
     integer n;
 
@@ -706,6 +724,7 @@ task getResponce(input n);
     end
 endtask
 
+//Reset whole system for another test
 task resetAll;
     begin
         reset[1] = 1;
@@ -724,6 +743,8 @@ task resetAll;
 endtask
 
 
+//Take expected as inputs and test them against actuals. Outputs the status of
+//the check. Writes all results to file.
 task checker;
     input exp, exp_resp_wire, exp_resp;
 
@@ -766,6 +787,7 @@ task checker;
     end
 endtask
 
+//Output final results
 task finish;
     begin
         $sformat(string, "Total tests:  %0d\nTotal passed: %0d\nTotal failed: %0d", totalTests, passedTests, failedTests);
@@ -773,6 +795,7 @@ task finish;
     end
 endtask
 
+//Drive 1 commands and 2 data input in system for testing.
 task driver;
     input x1, x2, cmd, inpWire, testName;
 
@@ -790,18 +813,23 @@ task driver;
         $sformat(string, "Test %0d - %0s  r(%0d)", totalTests, testName, inpWire);
         print(file, string);
 
+        //Put data on wire and wait for response from a wire.
         resetAll;
         drive2data(inpWire, x1, x2, cmd);
         waitForResp;
 
+        //Get the correct response
         exp_resp = getExpResp(x1, x2, cmd);
 
+        //Get the correct data output answer
         res = resolve(x1, x2, cmd);
         $sformat(string, "resolve: %0d (%0d) %0d = %0d", x1, cmd, x2, res);
         print(file, string);
 
+        //Check these values against the actuals
         checker(res, inpWire, exp_resp);
 
+        // Output some info about the test
         if (passed == 1 ) begin
             passedTests = passedTests + 1;
             $sformat(string, "Test %0d Passed.", totalTests);
@@ -817,8 +845,7 @@ task driver;
     end
 endtask
 
-
-
+//Drive 2 commands and 4 data input in system for testing.
 task driver2;
     input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, testName;
 
@@ -838,13 +865,21 @@ task driver2;
         $sformat(string, "Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
         print(file, string);
 
+        // Get expected responses
         exp_resp1 = getExpResp(x11, x12, cmd1);
         exp_resp2 = getExpResp(x21, x22, cmd2);
 
+        //Put the correct input onto the system
         drive4data(wire1, wire2, x11, x12, x21, x22, cmd1, cmd2);
 
         result = 1;
+        //As the design states, a combination of add/sub or a shift operation
+        //at the same time will cause their answers to be returned one after
+        //another. The following logic will determine whether the results
+        //should be output at the same time or one after another and therefore
+        //check accordingly.
         if((cmd1 < 3 && cmd2 > 3) || (cmd1 > 3 && cmd2 < 3)) begin
+            //1 wait here
             waitForResp;
             getResponce(wire1);
 
@@ -876,6 +911,7 @@ task driver2;
             if (passed == 0)
                 result = 0;
 
+            // 2 waits here
             waitForResp;
             res = resolve(x21, x22, cmd2);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
@@ -902,6 +938,8 @@ task driver2;
     end
 endtask
 
+
+//Drive 3 commands and 6 data input in system for testing.
 task driver3;
     input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, x31, x32, cmd3, wire3, testName;
 
@@ -913,6 +951,8 @@ task driver3;
 
     reg[0:1] exp_resp1, exp_resp2, exp_resp3;
     reg [0:63] work;
+
+    reg [0:31] res;
 
     begin
         totalTests = totalTests + 1;
@@ -926,24 +966,39 @@ task driver3;
         exp_resp3 = getExpResp(x31, x32, cmd3);
         result = 1;
 
-        // if (cmd1 < 3 || cmd2 < 3 && cmd3 < 3)  || (cmd1 > 3 && cmd2 > 3 && cmd3 > 3)
+        //As before, the following logic determines what output data should
+        //should be returned with what
+        if ((cmd1 < 3 && cmd2 < 3 && cmd3 < 3)  || (cmd1 > 3 && cmd2 > 3 && cmd3 > 3)) begin
             //All are are 1 after another
-        waitForResp;
-        checker(resolve(x11, x12, cmd1), wire1, exp_resp1);
-        if (passed == 0)
-            result = 0;
+            waitForResp;
 
-        waitForResp;
-        checker(resolve(x21, x22, cmd2), wire2, exp_resp2);
-        if (passed == 0)
-            result = 0;
+            res = resolve(x11, x12, cmd1);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
 
-        waitForResp;
-        checker(resolve(x31, x32, cmd3), wire3, exp_resp3);
-        if (passed == 0)
-            result = 0;
+            checker(res, wire1, exp_resp1);
+            if (passed == 0)
+                result = 0;
 
-        // else if ((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 || cmd2 > 3)
+            res = resolve(x21, x22, cmd2);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            waitForResp;
+            checker(res, wire2, exp_resp2);
+            if (passed == 0)
+                result = 0;
+
+            res = resolve(x31, x32, cmd3);
+            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
+            print(file, string);
+
+            waitForResp;
+            checker(res, wire3, exp_resp3);
+            if (passed == 0)
+                result = 0;
+        end
+        else if ((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 && cmd2 > 3)) begin
             // 1 and 2 are after on another
             waitForResp;
             getResponce(wire1);
@@ -970,8 +1025,8 @@ task driver3;
             checker(resolve(x21, x22, cmd2), wire2, exp_resp2);
             if (passed == 0)
                 result = 0;
-
-        // else if ((cmd1 < 3 && cmd3 < 3) || (cmd1 > 3 || cmd3 > 3)
+        end
+        else if ((cmd1 < 3 && cmd3 < 3) || (cmd1 > 3 && cmd3 > 3) || (cmd2 < 3 && cmd3 < 3) || (cmd2 > 3 && cmd3 > 3)) begin
             // 1 and 3 are after one another
             waitForResp;
             getResponce(wire1);
@@ -998,37 +1053,7 @@ task driver3;
             checker(resolve(x31, x32, cmd3), wire3, exp_resp3);
             if (passed == 0)
                 result = 0;
-        // else 2 and 3 are after one another
-            waitForResp;
-            getResponce(wire1);
-
-            res = resolve(x11, x12, cmd1);
-            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
-            print(file, string);
-
-            checker(res, wire1, exp_resp1);
-            if (passed == 0)
-                result = 0;
-
-            waitForResp;
-
-            getResponce(wire2);
-
-            res = resolve(x21, x22, cmd2);
-            $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
-            print(file, string);
-
-            checker(res, wire2, exp_resp2);
-            if (passed == 0)
-                result = 0;
-
-            getResponce(wire3);
-
-            checker(resolve(x31, x32, cmd3), wire3, exp_resp3);
-            if (passed == 0)
-                result = 0;
-
-
+        end
 
         if (result == 0) begin
             failedTests = failedTests + 1;
@@ -1046,6 +1071,7 @@ task driver3;
     end
 endtask
 
+//Drive 4 commands and 8 data input in system for testing.
 task driver4;
     input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, x31, x32, cmd3, wire3, x41, x42, cmd4, wire4, testName;
 
@@ -1105,6 +1131,8 @@ task driver4;
         print(file, string);
     end
 endtask
+
+//Get the most significant bit of a number
 function integer mostSigBit(input n);
     reg[0:31] n;
     integer bitpos;
@@ -1118,6 +1146,7 @@ function integer mostSigBit(input n);
     end
 endfunction
 
+//Get the least significant bit of a number
 function integer leastSigBit(input n);
     reg[0:31] n;
     integer bitpos;
@@ -1132,6 +1161,7 @@ function integer leastSigBit(input n);
 endfunction
 
 
+//Get the expected response of an out_resp wire
 function reg[0:1] getExpResp(input x1, x2, cmd);
     reg [0:31] x1, x2;
     reg [0:3] cmd;
@@ -1141,6 +1171,7 @@ function reg[0:1] getExpResp(input x1, x2, cmd);
 
     begin
         case (cmd)
+            //Tests for overflow or underflow
             `ADD:begin
                 max = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
                 work = x1 + x2;
@@ -1169,6 +1200,7 @@ function reg[0:1] getExpResp(input x1, x2, cmd);
                 else
                     getExpResp = 1;
             end
+            //An invalid command
             default:begin
                 getExpResp = 2;
             end
@@ -1176,6 +1208,7 @@ function reg[0:1] getExpResp(input x1, x2, cmd);
     end
 endfunction
 
+//Returns the correct answer to a command and two data inputs
 function reg[0:31] resolve(input x1, x2, cmd);
     reg [0:31] x1, x2;
     reg[0:3] cmd;
@@ -1204,6 +1237,7 @@ function reg[0:31] resolve(input x1, x2, cmd);
 endfunction
 
 
+// Put one command and data on a specified input wire
 task putOnWire;
     input inpWire, data, cmd;
     integer inpWire;
@@ -1232,6 +1266,7 @@ task putOnWire;
 endtask
 
 
+//Puts 2 inputs and command correctly onto a wire on the system
 task drive2data;
     input inpWire, data1, data2, cmd;
     integer inpWire;
@@ -1244,6 +1279,7 @@ task drive2data;
     end
 endtask
 
+//Puts 4 inputs and 2 commands correctly onto 2 wires on the system
 task drive4data;
     input inpWire1, inpWire2, data11, data12, data21, data22, cmd1, cmd2;
 
@@ -1259,6 +1295,7 @@ task drive4data;
     end
 endtask
 
+//Puts 6 inputs and 3 commands correctly onto 3 wires on the system
 task drive6data;
     input inpWire1, inpWire2, inpWire3, data11, data12, data21, data22, data31, data32, cmd1, cmd2, cmd3;
 
@@ -1276,6 +1313,7 @@ task drive6data;
     end
 endtask
 
+//Puts 8 inputs and 4 commands correctly onto 4 wires on the system
 task drive8data;
     input inpWire1, inpWire2, inpWire3, inpWire4, data11, data12, data21, data22, data31, data32, data41, data42, cmd1, cmd2, cmd3, cmd4;
 
@@ -1296,9 +1334,8 @@ task drive8data;
 endtask
 
 
-task print;
-    input outFile, outString;
-
+//Print an input string onto the transcript shell as well as a given file
+task print(input outFile, outString);
     reg[256*8:0] outString;
     integer outFile;
 
@@ -1315,3 +1352,4 @@ always
     end
 
     endmodule
+
