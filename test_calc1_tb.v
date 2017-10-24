@@ -530,6 +530,18 @@ task testParallel2;
         exhaustParallel2(`RIGHT, `SUB, "parallel command test - right and sub");
         exhaustParallel2(`RIGHT, `ADD, "parallel command test - right and add");
 
+        exhaustPriority2(`ADD, `ADD, "priority test - add add");
+        exhaustPriority2(`ADD, `SUB, "priority test - add sub");
+
+        exhaustPriority2(`SUB, `SUB, "priority test - sub sub");
+        exhaustPriority2(`SUB, `ADD, "priority test - sub add");
+
+        exhaustPriority2(`LEFT, `LEFT, "priority test - left left");
+        exhaustPriority2(`LEFT, `RIGHT, "priority test - left right");
+
+        exhaustPriority2(`RIGHT, `RIGHT, "priority test - right right");
+        exhaustPriority2(`RIGHT, `LEFT, "priority test - right left");
+
     end
 endtask
 
@@ -564,13 +576,40 @@ task exhaustParallel2;
     end
 endtask
 
+//Take inputs and ensure priority on all wires
+task exhaustPriority2;
+    input cmd1, cmd2, testName;
+
+    reg[0:3] cmd1, cmd2;
+    reg[80*8:0] testName;
+
+    begin
+        // Unique combination of 2 out of 4 wires
+        //for (i = 1; i < 4; i = i + 1) begin
+        //for(j = i + 1; j <= 4; j = j +1) begin
+
+        for (i = 1; i <= 4; i = i + 1) begin
+            a = $urandom% (2**31);
+            b = $urandom% (2**31);
+            c = $urandom% (2**31);
+            d = $urandom% (2**31);
+
+            for(j = i + 1; j <= 4; j = j+1) begin
+                if (i != j)
+                    ensurePriority2(a, b, cmd1, i, c, d, cmd2, j, testName);
+            end
+        end
+    end
+endtask
+
+
 // Test 3 commands in parallel
 task testParallel3;
     begin
         print(file, "\n --- Testing 3 operators in parallel ---\n");
 
-        // Unique combination of 3 out of 4 wires
-        // {{1, 2, 3}, {1, 2, 4}, {1, 3, 4}, {2, 3, 4}}
+         //Unique combination of 3 out of 4 wires
+         //{{1, 2, 3}, {1, 2, 4}, {1, 3, 4}, {2, 3, 4}}
 
         a = 32'b0001_0100_1111_1111_1111_1111_1111_1110;
         b = 32'b0000_0011_1100_0100_0100_0000_0000_0001;
@@ -611,6 +650,94 @@ task testParallel3;
         driver3(a, b, `ADD, 1, a, b, `LEFT, 2, a, b, `RIGHT, 3, "parallel 3 command test - alr");
         driver3(a, b, `ADD, 1, a, b, `ADD, 3, a, b, `RIGHT, 4, "parallel 3 command test - aar");
         driver3(a, b, `ADD, 1, a, b, `LEFT, 2, a, b, `ADD, 3, "parallel 3 command test - ala");
+
+        exhaustPriority3(`ADD, `ADD, `ADD, "3 priority - add add add");
+        exhaustPriority3(`ADD, `ADD, `SUB, "3 priority - add add sub");
+        exhaustPriority3(`ADD, `SUB, `ADD, "3 priority - add sub add");
+        exhaustPriority3(`ADD, `SUB, `SUB, "3 priority - add sub sub");
+        exhaustPriority3(`SUB, `ADD, `ADD, "3 priority - sub add add");
+        exhaustPriority3(`SUB, `ADD, `SUB, "3 priority - sub add sub");
+        exhaustPriority3(`SUB, `SUB, `ADD, "3 priority - sub sub add");
+        exhaustPriority3(`SUB, `SUB, `SUB, "3 priority - sub sub sub");
+
+        exhaustPriority3(`LEFT, `LEFT, `LEFT, "3 priority - add add add");
+        exhaustPriority3(`LEFT, `LEFT, `RIGHT, "3 priority - add add sub");
+        exhaustPriority3(`LEFT, `RIGHT, `LEFT, "3 priority - add sub add");
+        exhaustPriority3(`LEFT, `RIGHT, `RIGHT, "3 priority - add sub sub");
+        exhaustPriority3(`RIGHT, `LEFT, `LEFT, "3 priority - sub add add");
+        exhaustPriority3(`RIGHT, `LEFT, `RIGHT, "3 priority - sub add sub");
+        exhaustPriority3(`RIGHT, `RIGHT, `LEFT, "3 priority - sub sub add");
+        exhaustPriority3(`RIGHT, `RIGHT, `RIGHT, "3 priority - sub sub sub");
+
+        exhaustPriority3(`ADD, `ADD, `LEFT, "3 priority - add add left");
+        exhaustPriority3(`ADD, `LEFT, `ADD, "3 priority - add left sub");
+        exhaustPriority3(`ADD, `LEFT, `LEFT, "3 priority - add left left");
+
+        exhaustPriority3(`LEFT, `LEFT, `ADD, "3 priority - left left add");
+        exhaustPriority3(`LEFT, `ADD, `LEFT, "3 priority - left add left");
+        exhaustPriority3(`LEFT, `ADD, `ADD, "3 priority - left add add");
+
+        exhaustPriority3(`ADD, `ADD, `RIGHT, "3 priority - add add right");
+        exhaustPriority3(`ADD, `RIGHT, `ADD, "3 priority - add right sub");
+        exhaustPriority3(`ADD, `RIGHT, `RIGHT, "3 priority - add right right");
+
+        exhaustPriority3(`RIGHT, `RIGHT, `ADD, "3 priority - right right add");
+        exhaustPriority3(`RIGHT, `ADD, `RIGHT, "3 priority - right add right");
+        exhaustPriority3(`RIGHT, `ADD, `ADD, "3 priority - right add add");
+
+        exhaustPriority3(`SUB, `SUB, `LEFT, "3 priority - sub sub left");
+        exhaustPriority3(`SUB, `LEFT, `SUB, "3 priority - sub left sub");
+        exhaustPriority3(`SUB, `LEFT, `LEFT, "3 priority - sub left left");
+
+        exhaustPriority3(`LEFT, `LEFT, `SUB, "3 priority - left left sub");
+        exhaustPriority3(`LEFT, `SUB, `LEFT, "3 priority - left sub left");
+        exhaustPriority3(`LEFT, `SUB, `SUB, "3 priority - left sub sub");
+
+        exhaustPriority3(`SUB, `SUB, `RIGHT, "3 priority - sub sub right");
+        exhaustPriority3(`SUB, `RIGHT, `SUB, "3 priority - sub right sub");
+        exhaustPriority3(`SUB, `RIGHT, `RIGHT, "3 priority - sub right right");
+
+        exhaustPriority3(`RIGHT, `RIGHT, `SUB, "3 priority - right right sub");
+        exhaustPriority3(`RIGHT, `SUB, `RIGHT, "3 priority - right sub right");
+        exhaustPriority3(`RIGHT, `SUB, `SUB, "3 priority - right sub sub");
+
+        a = $urandom% (2**3);
+        b = $urandom% (2**3);
+        c = $urandom% (2**3);
+        d = $urandom% (2**3);
+        ensurePriority3(a, b, `ADD, 1, c, d, `SUB, 2, b, c, `LEFT, 3, "testing out wire 3 - add sub left");
+        ensurePriority3(a, b, `ADD, 1, c, d, `LEFT, 2, b, c, `LEFT, 3, "testing out wire 3 - add sub left");
+        ensurePriority3(a, b, `ADD, 1, c, d, `LEFT, 2, b, c, `ADD, 3, "testing out wire 3 - add left add");
+        ensurePriority3(a, b, `SUB, 1, c, d, `ADD, 2, b, c, `RIGHT, 3, "testing out wire 3 - add sub left");
+
+        ensurePriority3(a, b, `LEFT, 1, c, d, `RIGHT, 2, b, c, `ADD, 3, "testing out wire 3 - left right add");
+        ensurePriority3(a, b, `LEFT, 1, c, d, `ADD, 2, b, c, `ADD, 3, "testing out wire 3 - left add add");
+        ensurePriority3(a, b, `LEFT, 1, c, d, `ADD, 2, b, c, `LEFT, 3, "testing out wire 3 - left add left");
+        ensurePriority3(a, b, `RIGHT, 1, c, d, `LEFT, 2, b, c, `SUB, 3, "testing out wire 3 - right left sub");
+
+        ensurePriority3(a, b, `LEFT, 1, c, d, `RIGHT, 3, b, c, `ADD, 4, "testing out wire 3 - left right add");
+        ensurePriority3(a, b, `LEFT, 1, c, d, `ADD, 3, b, c, `ADD, 4, "testing out wire 3 - left add add");
+        ensurePriority3(a, b, `LEFT, 1, c, d, `ADD, 3, b, c, `LEFT, 4, "testing out wire 3 - left add left");
+        ensurePriority3(a, b, `RIGHT, 1, c, d, `LEFT, 3, b, c, `SUB, 4, "testing out wire 3 - right left sub");
+    end
+endtask
+
+task exhaustPriority3;
+    input cmd1, cmd2, cmd3, testName;
+
+    reg[0:3] cmd1, cmd2, cmd3;
+    reg[80*8:0] testName;
+
+    begin
+        a = $urandom% (2**31);
+        b = $urandom% (2**31);
+        c = $urandom% (2**31);
+        d = $urandom% (2**31);
+
+        ensurePriority3(a, b, cmd1, 1, c, d, cmd2, 2, b, c, cmd3, 3, testName);
+        ensurePriority3(a, b, cmd1, 1, c, d, cmd2, 2, b, c, cmd3, 4, testName);
+        ensurePriority3(a, b, cmd1, 1, c, d, cmd2, 3, b, c, cmd3, 4, testName);
+        ensurePriority3(a, b, cmd1, 2, c, d, cmd2, 3, b, c, cmd3, 4, testName);
     end
 endtask
 
@@ -695,7 +822,7 @@ task waitForResp;
 endtask
 
 //Get the data from a particular output wire
-task getResponce(input n);
+task getResponse(input n);
     integer n;
 
     begin
@@ -754,7 +881,7 @@ task checker;
 
     reg fail;
     begin
-        $sformat(string, "r(%0d) responce: %0d - out_data: %b", resp_wire, resp, out_dat);
+        $sformat(string, "r(%0d) response: %0d - out_data: %b", resp_wire, resp, out_dat);
         print(file, string);
         fail = 0;
 
@@ -786,6 +913,47 @@ task checker;
 
     end
 endtask
+
+//Ensure there is a response from given response wire
+function reg checkResponse;
+    input exp_resp_wire;
+
+    integer exp_resp_wire;
+
+    begin
+        case (exp_resp_wire)
+            1:begin
+                if (out_resp1 != 0)
+                    checkResponse = 1;
+                else
+                    checkResponse = 0;
+            end
+            2:begin
+                if (out_resp2 != 0)
+                    checkResponse = 1;
+                else
+                    checkResponse = 0;
+            end
+            3:begin
+                if (out_resp3 != 0)
+                    checkResponse = 1;
+                else
+                    checkResponse = 0;
+            end
+            4:begin
+                if (out_resp4 != 0)
+                    checkResponse = 1;
+                else
+                    checkResponse = 0;
+            end
+            //An invalid wire
+            default:begin
+                checkResponse = 0;
+            end
+        endcase
+
+    end
+endfunction
 
 //Output final results
 task finish;
@@ -881,7 +1049,7 @@ task driver2;
         if((cmd1 < 3 && cmd2 > 3) || (cmd1 > 3 && cmd2 < 3)) begin
             //1 wait here
             waitForResp;
-            getResponce(wire1);
+            getResponse(wire1);
 
             res = resolve(x11, x12, cmd1);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
@@ -891,7 +1059,7 @@ task driver2;
             if (passed == 0)
                 result = 0;
 
-            getResponce(wire2);
+            getResponse(wire2);
 
             res = resolve(x21, x22, cmd2);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
@@ -938,6 +1106,200 @@ task driver2;
     end
 endtask
 
+//Ensure that the given inputs results in the correct response order
+task ensurePriority2;
+    input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, testName;
+
+    integer wire1, wire2;
+    reg [0:3]  cmd1, cmd2;
+    reg[0:31] x11, x12, x21, x22;
+    reg [100*8:0] testName;
+    reg result;
+
+    integer hasResponded;
+    integer outputWave;
+
+    begin
+        totalTests = totalTests + 1;
+        resetAll;
+        $sformat(string, "Test %0d - %0s  r(%0d, %0d)", totalTests, testName, wire1, wire2);
+        print(file, string);
+
+        //Put the correct input onto the system
+        drive4data(wire1, wire2, x11, x12, x21, x22, cmd1, cmd2);
+
+        result = 1;
+        //As the design states, a combination of add/sub or a shift operation
+        //at the same time will cause their answers to be returned one after
+        //another. The following logic will determine whether the results
+        //should be output at the same time or one after another and therefore
+        //check accordingly.
+        waitForResp;
+        outputWave = 1;
+
+        hasResponded = checkResponse(wire1);
+        if (hasResponded == 0) begin
+            result = 0;
+            $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire1, outputWave, wire2);
+            print(file, string);
+        end
+
+        if((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 && cmd2 > 3)) begin
+            waitForResp;
+            outputWave = outputWave + 1;
+        end
+
+        hasResponded = checkResponse(wire2);
+        if (hasResponded == 0) begin
+            result = 0;
+            $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire2, outputWave, wire2);
+            print(file, string);
+        end
+
+        if (result == 0) begin
+            failedTests = failedTests + 1;
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
+        end
+        else begin
+            passedTests = passedTests + 1;
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
+        end
+
+        string = "";
+        print(file, string);
+    end
+endtask
+
+//Ensure that the given inputs results in the correct response order
+task ensurePriority3;
+    input x11, x12, cmd1, wire1, x21, x22, cmd2, wire2, x31, x32, cmd3, wire3, testName;
+
+    integer wire1, wire2, wire3; 
+    reg [0:3]  cmd1, cmd2, cmd3;
+    reg[0:31] x11, x12, x21, x22, x31, x32;
+    reg [100*8:0] testName;
+    reg result;
+
+    integer hasResponded;
+    integer outputWave;
+
+    begin
+        totalTests = totalTests + 1;
+        resetAll;
+        $sformat(string, "Test %0d - %0s  r(%0d, %0d, %0d)", totalTests, testName, wire1, wire2, wire3);
+        print(file, string);
+
+        //Put the correct input onto the system
+        drive6data(wire1, wire2, wire3, x11, x12, x21, x22, x31, x32, cmd1, cmd2, cmd3);
+
+        result = 1;
+        //As the design states, a combination of add/sub or a shift operation
+        //at the same time will cause their answers to be returned one after
+        //another. The following logic will determine whether the results
+        //should be output at the same time or one after another and therefore
+        //check accordingly.
+        waitForResp;
+        outputWave = 1;
+
+        if ((cmd1 < 3 && cmd2 < 3 && cmd3 < 3)  || (cmd1 > 3 && cmd2 > 3 && cmd3 > 3)) begin
+            hasResponded = checkResponse(wire1);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire1, outputWave, wire1);
+                print(file, string);
+            end
+
+            waitForResp;
+            outputWave = outputWave + 1;
+
+            hasResponded = checkResponse(wire2);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire2, outputWave, wire2);
+                print(file, string);
+            end
+
+
+            waitForResp;
+            outputWave = outputWave + 1;
+
+            hasResponded = checkResponse(wire3);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire3, outputWave, wire3);
+                print(file, string);
+            end
+        end
+        else if ((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 && cmd2 > 3)) begin
+            hasResponded = checkResponse(wire1);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire1, outputWave, wire1);
+                print(file, string);
+            end
+
+            waitForResp;
+            outputWave = outputWave + 1;
+
+            hasResponded = checkResponse(wire2);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire2, outputWave, wire2);
+                print(file, string);
+            end
+
+
+            hasResponded = checkResponse(wire3);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire3, outputWave, wire3);
+                print(file, string);
+            end
+        end
+        else if ((cmd1 < 3 && cmd3 < 3) || (cmd1 > 3 && cmd3 > 3) || (cmd2 < 3 && cmd3 < 3) || (cmd2 > 3 && cmd3 > 3)) begin
+            hasResponded = checkResponse(wire1);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire1, outputWave, wire1);
+                print(file, string);
+            end
+
+            hasResponded = checkResponse(wire2);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire2, outputWave, wire2);
+                print(file, string);
+            end
+
+
+            waitForResp;
+            outputWave = outputWave + 1;
+
+            hasResponded = checkResponse(wire3);
+            if (hasResponded == 0) begin
+                result = 0;
+                $sformat(string, "expected wire %0d to respond at output wave %0d, did not.  r(%0d)", wire3, outputWave, wire3);
+                print(file, string);
+            end
+        end
+
+        if (result == 0) begin
+            failedTests = failedTests + 1;
+            $sformat(string, "Test %0d Failed.", totalTests);
+            print(file, string);
+        end
+        else begin
+            passedTests = passedTests + 1;
+            $sformat(string, "Test %0d Passed.", totalTests);
+            print(file, string);
+        end
+
+        string = "";
+        print(file, string);
+    end
+endtask
 
 //Drive 3 commands and 6 data input in system for testing.
 task driver3;
@@ -1001,7 +1363,7 @@ task driver3;
         else if ((cmd1 < 3 && cmd2 < 3) || (cmd1 > 3 && cmd2 > 3)) begin
             // 1 and 2 are after on another
             waitForResp;
-            getResponce(wire1);
+            getResponse(wire1);
 
             res = resolve(x11, x12, cmd1);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
@@ -1011,7 +1373,7 @@ task driver3;
             if (passed == 0)
                 result = 0;
 
-            getResponce(wire3);
+            getResponse(wire3);
 
             res = resolve(x31, x32, cmd3);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x31, cmd3, x32, res);
@@ -1029,7 +1391,7 @@ task driver3;
         else if ((cmd1 < 3 && cmd3 < 3) || (cmd1 > 3 && cmd3 > 3) || (cmd2 < 3 && cmd3 < 3) || (cmd2 > 3 && cmd3 > 3)) begin
             // 1 and 3 are after one another
             waitForResp;
-            getResponce(wire1);
+            getResponse(wire1);
 
             res = resolve(x11, x12, cmd1);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x11, cmd1, x12, res);
@@ -1039,7 +1401,7 @@ task driver3;
             if (passed == 0)
                 result = 0;
 
-            getResponce(wire2);
+            getResponse(wire2);
 
             res = resolve(x21, x22, cmd2);
             $sformat(string, "resolve: %0d (%0d) %0d = %0d", x21, cmd2, x22, res);
